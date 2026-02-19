@@ -1,4 +1,4 @@
 [core]
-    remote = myremote
-['remote "myremote"']
-    url = gdrive://dvc_storage
+    remote = localremote
+['remote "localremote"']
+    url = C:\Projects\AgriSmart_dvc_storage
