@@ -1,0 +1,6 @@
+outs:
+- md5: c6e702355fa5e1bcd50f2b432a048fe2.dir
+  size: 3228293
+  nfiles: 5
+  hash: md5
+  path: irrigation_controler
