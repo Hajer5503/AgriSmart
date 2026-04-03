@@ -45,7 +45,7 @@ app.post('/api/auth/login', async (req, res) => {
 
 // Remplace l'ancienne configuration par celle-ci
 const pool = new Pool({
-  connectionString: 'postgresql://postgres:nGhcAFXJwvyRJpGELgDbPLsphtEoBYxJ@postgres.railway.internal:5432/railway',
+  connectionString: 'postgresql://postgres:nGhcAFXJwvyRJpGELgDbPLsphtEoBYxJ@shortline.proxy.rlwy.net:32275/railway',
   ssl: {
     rejectUnauthorized: false // Obligatoire pour se connecter aux DB cloud en mode sécurisé
   }
