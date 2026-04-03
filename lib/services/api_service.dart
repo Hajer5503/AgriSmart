@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class ApiService {
-  static const String baseUrl = 'http://10.0.2.2:3000/api'; // À remplacer
+  static const String baseUrl = /*'http://10.0.2.2:3000/api'*/'postgresql://postgres:nGhcAFXJwvyRJpGELgDbPLsphtEoBYxJ@shortline.proxy.rlwy.net:32275/railway'; // À remplacer
   
   final Dio _dio;
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
