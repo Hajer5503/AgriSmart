@@ -6,10 +6,14 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Utilise DATABASE_URL (variable Railway) en priorité
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL || 'postgresql://postgres:nGhcAFXJwvyRJpGELgDbPLsphtEoBYxJ@shortline.proxy.rlwy.net:32275/railway',
   ssl: { rejectUnauthorized: false }
+});
+
+// ✅ Route de test
+app.get('/', (req, res) => {
+  res.json({ message: 'AgriSmart API en ligne ✅' });
 });
 
 app.post('/api/auth/login', async (req, res) => {
@@ -25,6 +29,7 @@ app.post('/api/auth/login', async (req, res) => {
       res.status(401).json({ message: "Identifiants incorrects" });
     }
   } catch (err) {
+    console.error(err);
     res.status(500).json({ message: "Erreur serveur" });
   }
 });
@@ -38,10 +43,10 @@ app.post('/api/auth/register', async (req, res) => {
     );
     res.status(201).json({ user: result.rows[0], token: 'fake-jwt-token-for-testing' });
   } catch (err) {
+    console.error(err);
     res.status(500).json({ message: "Erreur lors de l'inscription" });
   }
 });
 
-// ⚠️ PORT dynamique obligatoire pour Railway
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Serveur lancé sur port ${PORT}`));
