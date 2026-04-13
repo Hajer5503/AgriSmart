@@ -1,0 +1,782 @@
+=== AGRIVET AI — CLINICAL RULES ===
+Source: RandomForest trained on 10431 veterinary cases.
+Top-3 diagnostic accuracy: 38%.
+Use as hints — always verify with clinical exam.
+
+USAGE: Cross-check diagnosis against these rules.
+Present top-2 likely diseases with key symptoms.
+Flag any vital sign outside the typical range.
+
+────────────────────────────────────────────────────────────
+  DOG — 22 diseases
+────────────────────────────────────────────────────────────
+• Canine Parvovirus (n=303)
+  Symptoms : Fever, Swollen Joints, Vomiting, Lethargy, Weight Loss
+  Flags    : appetite loss, vomiting, coughing, labored breathing, lameness
+  Vitals   : temp=39.3°C  HR=122 bpm
+
+• Canine Distemper (n=224)
+  Symptoms : Vomiting, Coughing, Lethargy, Nasal Discharge, Reduced Wool Production
+  Flags    : appetite loss, vomiting, coughing, lameness
+  Vitals   : temp=39.3°C  HR=123 bpm
+
+• Kennel Cough (n=224)
+  Symptoms : Coughing, Lethargy, Loss of Appetite, Swelling, Lameness
+  Flags    : appetite loss, vomiting, coughing
+  Vitals   : temp=39.3°C  HR=122 bpm
+
+• Parvovirus (n=210)
+  Symptoms : Lethargy, Swelling, Diarrhea, Fever, Decreased Milk Yield
+  Flags    : appetite loss, vomiting, coughing, labored breathing
+  Vitals   : temp=39.3°C  HR=122 bpm
+
+• Gastroenteritis (n=163)
+  Symptoms : Lethargy, Diarrhea, Weight Loss, Fever, Nasal Discharge
+  Flags    : appetite loss, vomiting, coughing, skin lesions, eye discharge
+  Vitals   : temp=39.3°C  HR=123 bpm
+
+• Canine Leptospirosis (n=113)
+  Symptoms : Weight Loss, Labored Breathing, Loss of Appetite, Eye Discharge, Decreased Milk Yield
+  Flags    : appetite loss, coughing, labored breathing, lameness
+  Vitals   : temp=39.3°C  HR=120 bpm
+
+• Canine Hepatitis (n=80)
+  Symptoms : Diarrhea, Fever, Labored Breathing, Swollen Legs, Reduced Wool Growth
+  Flags    : appetite loss, vomiting, coughing, labored breathing, lameness, eye discharge
+  Vitals   : temp=39.3°C  HR=120 bpm
+
+• Lyme Disease (n=56)
+  Symptoms : Lethargy, Eye Discharge, Fever, Skin Lesions, Dehydration
+  Flags    : appetite loss, vomiting, diarrhea, coughing, lameness, skin lesions, nasal discharge
+  Vitals   : temp=39.4°C  HR=122 bpm
+
+• Distemper (n=49)
+  Symptoms : Swollen Joints, Lethargy, Loss of Appetite, Appetite Loss, Fever
+  Flags    : appetite loss, vomiting, coughing, labored breathing
+  Vitals   : temp=39.3°C  HR=123 bpm
+
+• Pancreatitis (n=44)
+  Symptoms : Lameness, Weight Loss, Nasal Discharge, Eye Discharge, Dehydration
+  Flags    : appetite loss, diarrhea, labored breathing, skin lesions
+  Vitals   : temp=39.2°C  HR=124 bpm
+
+• Canine Heartworm Disease (n=37)
+  Symptoms : Swelling, Loss of Appetite, Reduced Mobility, Diarrhea, Fever
+  Flags    : appetite loss, coughing, labored breathing, lameness
+  Vitals   : temp=39.3°C  HR=119 bpm
+
+• Canine Flu (n=35)
+  Symptoms : Eye Discharge, Swollen Legs, Vomiting, Nasal Discharge, Appetite Loss
+  Flags    : appetite loss, coughing, lameness
+  Vitals   : temp=39.3°C  HR=122 bpm
+
+• Leptospirosis (n=31)
+  Symptoms : Reduced Wool Production, Loss of Appetite, Decreased Milk Yield, Dehydration, Weight Loss
+  Flags    : appetite loss, vomiting, coughing
+  Vitals   : temp=39.2°C  HR=124 bpm
+
+• Canine Infectious Hepatitis (n=30)
+  Symptoms : Fever, Weight Loss, Loss of Appetite, Vomiting, Eye Discharge
+  Flags    : appetite loss, diarrhea, coughing, lameness, skin lesions
+  Vitals   : temp=39.4°C  HR=122 bpm
+
+• Arthritis (n=26)
+  Symptoms : Appetite Loss, Reduced Wool Production, Swollen Joints, Vomiting, Decreased Milk Yield
+  Flags    : appetite loss, coughing, labored breathing, lameness, eye discharge
+  Vitals   : temp=39.3°C  HR=121 bpm
+
+• Tick-Borne Disease (n=25)
+  Symptoms : Reduced Wool Growth, Labored Breathing, Reduced Wool Production, Sneezing, Diarrhea
+  Flags    : appetite loss, vomiting, coughing, lameness, skin lesions
+  Vitals   : temp=39.4°C  HR=121 bpm
+
+• Canine Cough (n=24)
+  Symptoms : Nasal Discharge, Fever, Weight Loss, Lethargy, Reduced Milk Production
+  Flags    : appetite loss, vomiting, labored breathing, lameness, nasal discharge
+  Vitals   : temp=39.4°C  HR=122 bpm
+
+• Heartworm Disease (n=23)
+  Symptoms : Swollen Legs, Appetite Loss, Nasal Discharge, Swollen Joints, Sneezing
+  Flags    : appetite loss, coughing, lameness, eye discharge
+  Vitals   : temp=39.4°C  HR=126 bpm
+
+• Bordetella Infection (n=23)
+  Symptoms : Coughing, Sneezing, Vomiting, Diarrhea, Swollen Legs
+  Flags    : appetite loss, vomiting, coughing, lameness, skin lesions, nasal discharge, eye discharge
+  Vitals   : temp=39.2°C  HR=120 bpm
+
+• Chronic Bronchitis (n=21)
+  Symptoms : Dehydration, Skin Lesions, Weight Loss, Swollen Legs, Reduced Mobility
+  Flags    : appetite loss, coughing, labored breathing
+  Vitals   : temp=39.2°C  HR=122 bpm
+
+• Canine Influenza (n=19)
+  Symptoms : Fever, Loss of Appetite, Decreased Milk Yield, Swelling, Dehydration
+  Flags    : appetite loss, vomiting, diarrhea, coughing, nasal discharge
+  Vitals   : temp=39.3°C  HR=124 bpm
+
+• Allergic Rhinitis (n=18)
+  Symptoms : Nasal Discharge, Appetite Loss, Eye Discharge, Swollen Legs, Skin Lesions
+  Flags    : appetite loss, coughing, skin lesions, eye discharge
+  Vitals   : temp=39.3°C  HR=123 bpm
+
+────────────────────────────────────────────────────────────
+  CAT — 28 diseases
+────────────────────────────────────────────────────────────
+• Feline Calicivirus (n=227)
+  Symptoms : Sneezing, Nasal Discharge, Eye Discharge, Dehydration, Skin Lesions
+  Flags    : appetite loss, coughing, labored breathing, lameness
+  Vitals   : temp=39.2°C  HR=142 bpm
+
+• Feline Infectious Peritonitis (n=202)
+  Symptoms : Fever, Loss of Appetite, Coughing, Dehydration, Skin Lesions
+  Flags    : appetite loss, vomiting, coughing
+  Vitals   : temp=39.3°C  HR=143 bpm
+
+• Feline Herpesvirus (n=175)
+  Symptoms : Nasal Discharge, Lethargy, Appetite Loss, Sneezing, Fever
+  Flags    : appetite loss, vomiting, coughing, labored breathing, lameness, skin lesions
+  Vitals   : temp=39.3°C  HR=142 bpm
+
+• Feline Leukemia Virus (n=173)
+  Symptoms : Reduced Milk Production, Reduced Appetite, Dehydration, Fever, Diarrhea
+  Flags    : appetite loss, vomiting, coughing, labored breathing, lameness, skin lesions
+  Vitals   : temp=39.3°C  HR=143 bpm
+
+• Upper Respiratory Infection (n=105)
+  Symptoms : Nasal Discharge, Swollen Legs, Coughing, Sneezing, Weight Loss
+  Flags    : appetite loss, coughing, labored breathing, lameness
+  Vitals   : temp=39.3°C  HR=144 bpm
+
+• Feline Upper Respiratory Infection (n=99)
+  Symptoms : Eye Discharge, Decreased Milk Yield, Reduced Mobility, Diarrhea, Coughing
+  Flags    : appetite loss, vomiting, coughing, labored breathing, lameness
+  Vitals   : temp=39.3°C  HR=142 bpm
+
+• Feline Panleukopenia (n=80)
+  Symptoms : Lethargy, Swollen Joints, Reduced Wool Growth, Swelling, Coughing
+  Flags    : appetite loss, vomiting, coughing, labored breathing, lameness
+  Vitals   : temp=39.3°C  HR=141 bpm
+
+• Feline Asthma (n=77)
+  Symptoms : Fever, Swollen Legs, Reduced Wool Growth, Coughing, Swelling
+  Flags    : appetite loss, vomiting, coughing, labored breathing, lameness, skin lesions
+  Vitals   : temp=39.2°C  HR=144 bpm
+
+• Panleukopenia (n=72)
+  Symptoms : Reduced Appetite, Appetite Loss, Swollen Legs, Lethargy, Eye Discharge
+  Flags    : appetite loss, vomiting, coughing, lameness, skin lesions, nasal discharge
+  Vitals   : temp=39.3°C  HR=144 bpm
+
+• Feline Respiratory Disease Complex (n=53)
+  Symptoms : Reduced Mobility, Vomiting, Fever, Swollen Joints, Loss of Appetite
+  Flags    : appetite loss, coughing, lameness, skin lesions, nasal discharge
+  Vitals   : temp=39.3°C  HR=143 bpm
+
+• Feline Leukemia (n=50)
+  Symptoms : Appetite Loss, Swollen Legs, Diarrhea, Decreased Milk Yield, Eye Discharge
+  Flags    : appetite loss, vomiting, coughing, lameness, skin lesions
+  Vitals   : temp=39.1°C  HR=142 bpm
+
+• Intestinal Parasites (n=46)
+  Symptoms : Diarrhea, Dehydration, Sneezing, Labored Breathing, Appetite Loss
+  Flags    : appetite loss, vomiting, diarrhea, coughing
+  Vitals   : temp=39.3°C  HR=144 bpm
+
+• Feline Rhinotracheitis (n=44)
+  Symptoms : Swelling, Skin Lesions, Reduced Appetite, Vomiting, Coughing
+  Flags    : appetite loss, coughing, labored breathing
+  Vitals   : temp=39.3°C  HR=143 bpm
+
+• Fungal Infection (n=43)
+  Symptoms : Swollen Legs, Swollen Joints, Reduced Mobility, Lethargy, Loss of Appetite
+  Flags    : appetite loss, coughing, lameness, skin lesions
+  Vitals   : temp=39.3°C  HR=145 bpm
+
+• Feline Viral Rhinotracheitis (n=42)
+  Symptoms : Skin Lesions, Decreased Milk Yield, Coughing, Nasal Discharge, Reduced Appetite
+  Flags    : appetite loss, coughing
+  Vitals   : temp=39.3°C  HR=142 bpm
+
+• Pancreatitis (n=40)
+  Symptoms : Diarrhea, Swollen Legs, Appetite Loss, Vomiting, Skin Lesions
+  Flags    : appetite loss, vomiting, coughing, labored breathing, lameness, eye discharge
+  Vitals   : temp=39.3°C  HR=142 bpm
+
+• Inflammatory Bowel Disease (n=39)
+  Symptoms : Weight Loss, Reduced Mobility, Swollen Joints, Labored Breathing, Coughing
+  Flags    : appetite loss, vomiting, diarrhea, coughing, lameness, skin lesions, nasal discharge
+  Vitals   : temp=39.2°C  HR=144 bpm
+
+• Feline Chlamydia (n=36)
+  Symptoms : Coughing, Reduced Wool Production, Fever, Appetite Loss, Decreased Milk Yield
+  Flags    : appetite loss, diarrhea, coughing, lameness, skin lesions, eye discharge
+  Vitals   : temp=39.3°C  HR=143 bpm
+
+• Feline Respiratory Infection (n=34)
+  Symptoms : Swollen Joints, Reduced Wool Production, Sneezing, Reduced Mobility, Decreased Milk Yield
+  Flags    : appetite loss, vomiting, coughing, skin lesions
+  Vitals   : temp=39.2°C  HR=141 bpm
+
+• Conjunctivitis (n=32)
+  Symptoms : Appetite Loss, Nasal Discharge, Fever, Vomiting, Reduced Appetite
+  Flags    : appetite loss, vomiting, coughing, labored breathing, skin lesions, eye discharge
+  Vitals   : temp=39.2°C  HR=144 bpm
+
+• Feline Coronavirus (n=27)
+  Symptoms : Swollen Legs, Reduced Appetite, Decreased Milk Yield, Nasal Discharge, Labored Breathing
+  Flags    : appetite loss, vomiting, coughing, lameness, skin lesions, eye discharge
+  Vitals   : temp=39.2°C  HR=145 bpm
+
+• Ringworm (n=26)
+  Symptoms : Vomiting, Labored Breathing, Skin Lesions, Dehydration, Eye Discharge
+  Flags    : appetite loss, coughing, labored breathing, lameness, skin lesions, eye discharge
+  Vitals   : temp=39.3°C  HR=143 bpm
+
+• Feline Chlamydiosis (n=25)
+  Symptoms : Swollen Joints, Lameness, Vomiting, Decreased Milk Yield, Lethargy
+  Flags    : appetite loss, vomiting, coughing, labored breathing, lameness, skin lesions
+  Vitals   : temp=39.3°C  HR=141 bpm
+
+• Feline Panleukopenia Virus (n=23)
+  Symptoms : Reduced Mobility, Reduced Wool Production, Reduced Milk Production, Appetite Loss, Coughing
+  Flags    : appetite loss, vomiting, coughing, lameness, eye discharge
+  Vitals   : temp=39.4°C  HR=143 bpm
+
+• Gastroenteritis (n=22)
+  Symptoms : Decreased Milk Yield, Lethargy, Appetite Loss, Labored Breathing, Weight Loss
+  Flags    : appetite loss, vomiting
+  Vitals   : temp=39.3°C  HR=144 bpm
+
+• Feline Renal Disease (n=20)
+  Symptoms : Weight Loss, Swollen Legs, Eye Discharge, Skin Lesions, Loss of Appetite
+  Flags    : appetite loss, diarrhea, coughing, skin lesions
+  Vitals   : temp=39.2°C  HR=143 bpm
+
+• Feline Immunodeficiency Virus (n=16)
+  Symptoms : Reduced Wool Growth, Fever, Decreased Milk Yield, Nasal Discharge, Dehydration
+  Flags    : appetite loss, coughing, nasal discharge
+  Vitals   : temp=39.2°C  HR=143 bpm
+
+• Hyperthyroidism (n=13)
+  Symptoms : Reduced Wool Production, Lethargy, Skin Lesions, Appetite Loss, Swollen Legs
+  Flags    : appetite loss, coughing, labored breathing, skin lesions, eye discharge
+  Vitals   : temp=39.2°C  HR=140 bpm
+
+────────────────────────────────────────────────────────────
+  COW — 20 diseases
+────────────────────────────────────────────────────────────
+• Bovine Tuberculosis (n=370)
+  Symptoms : Coughing, Fever, Reduced Mobility, Eye Discharge, Loss of Appetite
+  Flags    : appetite loss, vomiting, coughing, labored breathing, lameness, eye discharge
+  Vitals   : temp=39.3°C  HR=81 bpm
+
+• Bovine Respiratory Disease (n=297)
+  Symptoms : Lethargy, Loss of Appetite, Dehydration, Decreased Milk Yield, Coughing
+  Flags    : appetite loss, vomiting, coughing, labored breathing, lameness, skin lesions
+  Vitals   : temp=39.4°C  HR=82 bpm
+
+• Bovine Johne's Disease (n=126)
+  Symptoms : Vomiting, Eye Discharge, Lethargy, Swollen Joints, Dehydration
+  Flags    : appetite loss, vomiting, diarrhea, coughing, labored breathing, lameness, eye discharge
+  Vitals   : temp=39.3°C  HR=81 bpm
+
+• Mastitis (n=118)
+  Symptoms : Decreased Milk Yield, Labored Breathing, Lethargy, Loss of Appetite, Weight Loss
+  Flags    : appetite loss, vomiting, coughing
+  Vitals   : temp=39.3°C  HR=80 bpm
+
+• Bovine Viral Diarrhea (n=100)
+  Symptoms : Lethargy, Eye Discharge, Diarrhea, Coughing, Vomiting
+  Flags    : appetite loss, vomiting, coughing, lameness
+  Vitals   : temp=39.2°C  HR=82 bpm
+
+• Johne's Disease (n=91)
+  Symptoms : Swollen Joints, Weight Loss, Decreased Milk Yield, Appetite Loss, Nasal Discharge
+  Flags    : appetite loss, vomiting, coughing, lameness
+  Vitals   : temp=39.3°C  HR=80 bpm
+
+• Bovine Respiratory Syncytial Virus (n=80)
+  Symptoms : Reduced Milk Production, Reduced Wool Growth, Swelling, Reduced Mobility, Reduced Appetite
+  Flags    : appetite loss, vomiting, coughing, labored breathing, lameness
+  Vitals   : temp=39.3°C  HR=81 bpm
+
+• Salmonellosis (n=61)
+  Symptoms : Dehydration, Coughing, Loss of Appetite, Weight Loss, Swollen Legs
+  Flags    : appetite loss, vomiting, coughing, lameness, eye discharge
+  Vitals   : temp=39.2°C  HR=79 bpm
+
+• Bovine Respiratory Disease Complex (n=57)
+  Symptoms : Loss of Appetite, Lethargy, Coughing, Swollen Joints, Lameness
+  Flags    : appetite loss, coughing, labored breathing, skin lesions, eye discharge
+  Vitals   : temp=39.3°C  HR=81 bpm
+
+• Bovine Mastitis (n=52)
+  Symptoms : Loss of Appetite, Fever, Swollen Joints, Reduced Appetite, Coughing
+  Flags    : appetite loss, diarrhea, coughing, labored breathing, lameness, eye discharge
+  Vitals   : temp=39.3°C  HR=81 bpm
+
+• Foot and Mouth Disease (n=44)
+  Symptoms : Coughing, Labored Breathing, Sneezing, Reduced Appetite, Lethargy
+  Flags    : appetite loss, vomiting, diarrhea, coughing, skin lesions
+  Vitals   : temp=39.5°C  HR=81 bpm
+
+• Respiratory Syncytial Virus (n=30)
+  Symptoms : Skin Lesions, Lethargy, Reduced Wool Growth, Fever, Weight Loss
+  Flags    : appetite loss, vomiting, coughing, lameness
+  Vitals   : temp=39.2°C  HR=79 bpm
+
+• Tuberculosis (n=28)
+  Symptoms : Nasal Discharge, Vomiting, Diarrhea, Eye Discharge, Reduced Appetite
+  Flags    : appetite loss, vomiting, coughing, lameness
+  Vitals   : temp=39.4°C  HR=82 bpm
+
+• Bovine Coccidiosis (n=27)
+  Symptoms : Reduced Wool Growth, Swollen Legs, Reduced Wool Production, Sneezing, Skin Lesions
+  Flags    : appetite loss, diarrhea, coughing, lameness, skin lesions
+  Vitals   : temp=39.1°C  HR=81 bpm
+
+• Bovine Pneumonia (n=26)
+  Symptoms : Reduced Wool Production, Lethargy, Reduced Mobility, Swollen Legs, Reduced Appetite
+  Flags    : appetite loss, vomiting, coughing, labored breathing, skin lesions
+  Vitals   : temp=39.2°C  HR=81 bpm
+
+• Coccidiosis (n=25)
+  Symptoms : Diarrhea, Swollen Joints, Fever, Appetite Loss, Swollen Legs
+  Flags    : appetite loss, vomiting, diarrhea, coughing, eye discharge
+  Vitals   : temp=39.2°C  HR=83 bpm
+
+• Bovine Parainfluenza (n=25)
+  Symptoms : Nasal Discharge, Fever, Coughing, Loss of Appetite, Swollen Legs
+  Flags    : appetite loss, vomiting, lameness
+  Vitals   : temp=39.4°C  HR=80 bpm
+
+• Cryptosporidiosis (n=20)
+  Symptoms : Reduced Mobility, Sneezing, Swollen Joints, Lameness, Diarrhea
+  Flags    : appetite loss, vomiting, diarrhea, coughing, lameness, eye discharge
+  Vitals   : temp=39.1°C  HR=81 bpm
+
+• Bovine Leukemia Virus (n=20)
+  Symptoms : Decreased Milk Yield, Reduced Appetite, Swollen Joints, Lethargy, Swollen Legs
+  Flags    : appetite loss, diarrhea, coughing, labored breathing, lameness, nasal discharge
+  Vitals   : temp=39.2°C  HR=84 bpm
+
+• Bovine Influenza (n=20)
+  Symptoms : Diarrhea, Labored Breathing, Reduced Milk Production, Swollen Legs, Loss of Appetite
+  Flags    : appetite loss, diarrhea, coughing, labored breathing, lameness, nasal discharge, eye discharge
+  Vitals   : temp=39.5°C  HR=80 bpm
+
+────────────────────────────────────────────────────────────
+  HORSE — 23 diseases
+────────────────────────────────────────────────────────────
+• Equine Influenza (n=294)
+  Symptoms : Labored Breathing, Fever, Swollen Legs, Nasal Discharge, Lameness
+  Flags    : appetite loss, vomiting, coughing, labored breathing, lameness
+  Vitals   : temp=39.3°C  HR=84 bpm
+
+• Equine Infectious Anemia (n=219)
+  Symptoms : Appetite Loss, Lameness, Fever, Decreased Milk Yield, Swollen Joints
+  Flags    : appetite loss, vomiting, coughing, labored breathing
+  Vitals   : temp=39.3°C  HR=85 bpm
+
+• Equine Herpesvirus (n=166)
+  Symptoms : Reduced Milk Production, Swollen Legs, Labored Breathing, Reduced Appetite, Decreased Milk Yield
+  Flags    : appetite loss, vomiting, coughing, labored breathing, lameness, eye discharge
+  Vitals   : temp=39.3°C  HR=88 bpm
+
+• Equine Laminitis (n=106)
+  Symptoms : Nasal Discharge, Coughing, Reduced Mobility, Swollen Legs, Reduced Wool Production
+  Flags    : appetite loss, vomiting, coughing, labored breathing, skin lesions, nasal discharge
+  Vitals   : temp=39.2°C  HR=84 bpm
+
+• Equine Arthritis (n=92)
+  Symptoms : Swollen Joints, Nasal Discharge, Reduced Wool Growth, Lameness, Reduced Mobility
+  Flags    : appetite loss, vomiting, coughing, labored breathing, lameness
+  Vitals   : temp=39.4°C  HR=86 bpm
+
+• Equine Protozoal Myeloencephalitis (n=89)
+  Symptoms : Decreased Milk Yield, Coughing, Lethargy, Diarrhea, Appetite Loss
+  Flags    : appetite loss, vomiting, coughing, lameness
+  Vitals   : temp=39.3°C  HR=85 bpm
+
+• Equine Encephalomyelitis (n=80)
+  Symptoms : Nasal Discharge, Vomiting, Skin Lesions, Dehydration, Swollen Legs
+  Flags    : appetite loss, coughing, labored breathing, skin lesions, eye discharge
+  Vitals   : temp=39.4°C  HR=84 bpm
+
+• Equine Rhinopneumonitis (n=72)
+  Symptoms : Coughing, Diarrhea, Reduced Wool Growth, Sneezing, Lethargy
+  Flags    : appetite loss, diarrhea, lameness, eye discharge
+  Vitals   : temp=39.2°C  HR=83 bpm
+
+• Equine Metabolic Syndrome (n=53)
+  Symptoms : Lethargy, Reduced Milk Production, Loss of Appetite, Nasal Discharge, Appetite Loss
+  Flags    : appetite loss, vomiting, coughing, skin lesions
+  Vitals   : temp=39.2°C  HR=85 bpm
+
+• Equine Encephalitis (n=47)
+  Symptoms : Lameness, Reduced Appetite, Reduced Wool Growth, Vomiting, Weight Loss
+  Flags    : appetite loss, vomiting, diarrhea, coughing, labored breathing, lameness, skin lesions, eye discharge
+  Vitals   : temp=39.4°C  HR=81 bpm
+
+• Equine Leptospirosis (n=46)
+  Symptoms : Lethargy, Weight Loss, Swollen Legs, Labored Breathing, Vomiting
+  Flags    : appetite loss, vomiting, coughing, labored breathing, lameness
+  Vitals   : temp=39.4°C  HR=82 bpm
+
+• Equine Osteoarthritis (n=43)
+  Symptoms : Fever, Weight Loss, Reduced Milk Production, Lethargy, Loss of Appetite
+  Flags    : appetite loss, coughing, labored breathing
+  Vitals   : temp=39.1°C  HR=84 bpm
+
+• West Nile Virus (n=38)
+  Symptoms : Loss of Appetite, Coughing, Eye Discharge, Lethargy, Reduced Wool Production
+  Flags    : appetite loss, vomiting, coughing, labored breathing, skin lesions, eye discharge
+  Vitals   : temp=39.5°C  HR=85 bpm
+
+• Equine West Nile Virus (n=32)
+  Symptoms : Coughing, Loss of Appetite, Lameness, Reduced Wool Growth, Sneezing
+  Flags    : appetite loss, vomiting, diarrhea, coughing, labored breathing, nasal discharge, eye discharge
+  Vitals   : temp=39.3°C  HR=86 bpm
+
+• Equine Viral Arteritis (n=31)
+  Symptoms : Reduced Milk Production, Reduced Appetite, Fever, Labored Breathing, Reduced Wool Production
+  Flags    : appetite loss, coughing, lameness, skin lesions
+  Vitals   : temp=39.4°C  HR=87 bpm
+
+• Strangles (n=27)
+  Symptoms : Reduced Appetite, Swollen Legs, Lameness, Sneezing, Skin Lesions
+  Flags    : appetite loss, vomiting, coughing, labored breathing, lameness, nasal discharge
+  Vitals   : temp=39.3°C  HR=84 bpm
+
+• Equine Influenza Virus (n=27)
+  Symptoms : Decreased Milk Yield, Diarrhea, Lameness, Sneezing, Swollen Legs
+  Flags    : appetite loss, coughing, labored breathing, nasal discharge
+  Vitals   : temp=39.2°C  HR=85 bpm
+
+• Laminitis (n=26)
+  Symptoms : Lameness, Dehydration, Reduced Mobility, Reduced Appetite, Reduced Milk Production
+  Flags    : appetite loss, vomiting, coughing, eye discharge
+  Vitals   : temp=39.4°C  HR=89 bpm
+
+• Equine Cushing's Disease (n=25)
+  Symptoms : Lethargy, Appetite Loss, Dehydration, Fever, Loss of Appetite
+  Flags    : appetite loss, vomiting, diarrhea, coughing, labored breathing, lameness, nasal discharge
+  Vitals   : temp=39.3°C  HR=85 bpm
+
+• Equine Lyme Disease (n=25)
+  Symptoms : Swollen Joints, Decreased Milk Yield, Reduced Wool Growth, Skin Lesions, Lameness
+  Flags    : appetite loss, vomiting, coughing, labored breathing
+  Vitals   : temp=39.2°C  HR=85 bpm
+
+• Equine Pneumonia (n=24)
+  Symptoms : Fever, Reduced Wool Growth, Loss of Appetite, Coughing, Nasal Discharge
+  Flags    : appetite loss, vomiting, coughing, labored breathing, lameness
+  Vitals   : temp=39.5°C  HR=81 bpm
+
+• Degenerative Joint Disease (n=23)
+  Symptoms : Reduced Wool Production, Reduced Milk Production, Decreased Milk Yield, Lameness, Appetite Loss
+  Flags    : appetite loss, coughing, lameness
+  Vitals   : temp=39.3°C  HR=85 bpm
+
+• Equine Piroplasmosis (n=22)
+  Symptoms : Fever, Reduced Mobility, Diarrhea, Appetite Loss, Lameness
+  Flags    : appetite loss, coughing, skin lesions
+  Vitals   : temp=39.2°C  HR=89 bpm
+
+────────────────────────────────────────────────────────────
+  SHEEP — 17 diseases
+────────────────────────────────────────────────────────────
+• Scrapie (n=215)
+  Symptoms : Reduced Wool Production, Labored Breathing, Coughing, Lethargy, Swollen Joints
+  Flags    : appetite loss, vomiting, coughing, labored breathing, lameness, skin lesions
+  Vitals   : temp=39.4°C  HR=78 bpm
+
+• Bluetongue (n=115)
+  Symptoms : Fever, Coughing, Reduced Mobility, Appetite Loss, Labored Breathing
+  Flags    : appetite loss, vomiting, coughing, labored breathing, skin lesions
+  Vitals   : temp=39.3°C  HR=79 bpm
+
+• Foot-and-Mouth Disease (n=97)
+  Symptoms : Fever, Coughing, Weight Loss, Appetite Loss, Swollen Legs
+  Flags    : appetite loss, coughing, lameness
+  Vitals   : temp=39.3°C  HR=78 bpm
+
+• Bluetongue Virus (n=51)
+  Symptoms : Lethargy, Swollen Joints, Vomiting, Fever, Reduced Appetite
+  Flags    : appetite loss, vomiting, coughing, lameness, eye discharge
+  Vitals   : temp=39.5°C  HR=78 bpm
+
+• Scrapie Disease (n=47)
+  Symptoms : Loss of Appetite, Nasal Discharge, Labored Breathing, Dehydration, Reduced Appetite
+  Flags    : appetite loss, vomiting, coughing, labored breathing, eye discharge
+  Vitals   : temp=39.4°C  HR=78 bpm
+
+• Chlamydia in Sheep (n=45)
+  Symptoms : Skin Lesions, Vomiting, Lethargy, Dehydration, Swelling
+  Flags    : appetite loss, vomiting, coughing, lameness, skin lesions, nasal discharge, eye discharge
+  Vitals   : temp=39.2°C  HR=78 bpm
+
+• Blue Tongue Virus (n=44)
+  Symptoms : Skin Lesions, Fever, Reduced Milk Production, Lethargy, Reduced Appetite
+  Flags    : appetite loss, coughing, skin lesions, nasal discharge
+  Vitals   : temp=39.2°C  HR=78 bpm
+
+• Contagious Ecthyma (n=43)
+  Symptoms : Nasal Discharge, Labored Breathing, Vomiting, Coughing, Reduced Wool Production
+  Flags    : appetite loss, vomiting, coughing, labored breathing, lameness, skin lesions, eye discharge
+  Vitals   : temp=39.4°C  HR=78 bpm
+
+• Foot and Mouth Disease (n=41)
+  Symptoms : Swollen Legs, Lethargy, Coughing, Fever, Nasal Discharge
+  Flags    : appetite loss, vomiting, coughing
+  Vitals   : temp=39.2°C  HR=78 bpm
+
+• Maedi-Visna (n=31)
+  Symptoms : Decreased Milk Yield, Sneezing, Diarrhea, Skin Lesions, Lethargy
+  Flags    : appetite loss, diarrhea, coughing, lameness, skin lesions
+  Vitals   : temp=39.3°C  HR=79 bpm
+
+• Footrot (n=28)
+  Symptoms : Loss of Appetite, Vomiting, Skin Lesions, Dehydration, Coughing
+  Flags    : appetite loss, vomiting, coughing, lameness
+  Vitals   : temp=39.3°C  HR=78 bpm
+
+• Blue Tongue Disease (n=26)
+  Symptoms : Swollen Legs, Vomiting, Eye Discharge, Sneezing, Loss of Appetite
+  Flags    : appetite loss, lameness
+  Vitals   : temp=39.1°C  HR=79 bpm
+
+• Contagious Abortion (n=24)
+  Symptoms : Loss of Appetite, Weight Loss, Diarrhea, Lameness, Fever
+  Flags    : appetite loss, vomiting, coughing, labored breathing, skin lesions
+  Vitals   : temp=39.2°C  HR=78 bpm
+
+• Caseous Lymphadenitis (n=22)
+  Symptoms : Loss of Appetite, Swollen Joints, Sneezing, Appetite Loss, Dehydration
+  Flags    : appetite loss, vomiting, lameness, skin lesions, nasal discharge
+  Vitals   : temp=39.4°C  HR=80 bpm
+
+• Blue Tongue (n=21)
+  Symptoms : Sneezing, Reduced Wool Growth, Lethargy, Eye Discharge, Nasal Discharge
+  Flags    : appetite loss, coughing, labored breathing, lameness, nasal discharge
+  Vitals   : temp=39.4°C  HR=78 bpm
+
+• Pneumonia (n=20)
+  Symptoms : Reduced Mobility, Lethargy, Reduced Appetite, Fever, Nasal Discharge
+  Flags    : appetite loss, vomiting, coughing, labored breathing, lameness, skin lesions
+  Vitals   : temp=39.5°C  HR=78 bpm
+
+• Pasteurellosis (n=19)
+  Symptoms : Swollen Joints, Sneezing, Appetite Loss, Labored Breathing, Coughing
+  Flags    : appetite loss, diarrhea, lameness, nasal discharge
+  Vitals   : temp=39.4°C  HR=79 bpm
+
+────────────────────────────────────────────────────────────
+  GOAT — 13 diseases
+────────────────────────────────────────────────────────────
+• Caprine Arthritis Encephalitis (n=300)
+  Symptoms : Vomiting, Reduced Wool Growth, Diarrhea, Weight Loss, Fever
+  Flags    : appetite loss, vomiting, coughing, lameness, skin lesions
+  Vitals   : temp=39.3°C  HR=86 bpm
+
+• Pneumonia (n=113)
+  Symptoms : Lethargy, Swelling, Fever, Vomiting, Swollen Joints
+  Flags    : appetite loss, vomiting, coughing, skin lesions, nasal discharge
+  Vitals   : temp=39.3°C  HR=86 bpm
+
+• Caprine Pleuropneumonia (n=98)
+  Symptoms : Vomiting, Reduced Appetite, Loss of Appetite, Fever, Skin Lesions
+  Flags    : appetite loss, coughing, lameness, skin lesions, eye discharge
+  Vitals   : temp=39.4°C  HR=84 bpm
+
+• Caprine Respiratory Disease (n=96)
+  Symptoms : Reduced Wool Growth, Dehydration, Lethargy, Vomiting, Reduced Milk Production
+  Flags    : appetite loss, vomiting, diarrhea, coughing, labored breathing, lameness, nasal discharge, eye discharge
+  Vitals   : temp=39.3°C  HR=85 bpm
+
+• Foot-and-Mouth Disease (n=61)
+  Symptoms : Diarrhea, Fever, Appetite Loss, Reduced Milk Production, Dehydration
+  Flags    : appetite loss, vomiting, coughing, lameness, skin lesions, eye discharge
+  Vitals   : temp=39.3°C  HR=85 bpm
+
+• Caprine Viral Arthritis (n=52)
+  Symptoms : Lethargy, Reduced Wool Growth, Sneezing, Labored Breathing, Lameness
+  Flags    : appetite loss, vomiting, coughing, labored breathing, skin lesions, nasal discharge, eye discharge
+  Vitals   : temp=39.3°C  HR=84 bpm
+
+• Coccidiosis (n=50)
+  Symptoms : Diarrhea, Reduced Mobility, Swollen Joints, Reduced Wool Production, Dehydration
+  Flags    : appetite loss, coughing, labored breathing, lameness, eye discharge
+  Vitals   : temp=39.4°C  HR=86 bpm
+
+• Caprine Arthritis Encephalitis Virus (n=40)
+  Symptoms : Appetite Loss, Diarrhea, Sneezing, Reduced Appetite, Reduced Wool Growth
+  Flags    : appetite loss, vomiting, coughing, skin lesions
+  Vitals   : temp=39.2°C  HR=85 bpm
+
+• Caprine Arthritis (n=28)
+  Symptoms : Vomiting, Reduced Milk Production, Sneezing, Labored Breathing, Swollen Legs
+  Flags    : appetite loss, vomiting, coughing, labored breathing, lameness, skin lesions
+  Vitals   : temp=39.3°C  HR=85 bpm
+
+• Giardiasis (n=27)
+  Symptoms : Sneezing, Labored Breathing, Appetite Loss, Fever, Swollen Joints
+  Flags    : appetite loss, vomiting, coughing, labored breathing, lameness, skin lesions, eye discharge
+  Vitals   : temp=39.2°C  HR=85 bpm
+
+• Goat Pox (n=27)
+  Symptoms : Swollen Legs, Weight Loss, Reduced Mobility, Reduced Milk Production, Decreased Milk Yield
+  Flags    : appetite loss, vomiting, diarrhea, labored breathing, lameness, skin lesions
+  Vitals   : temp=39.3°C  HR=86 bpm
+
+• Caseous Lymphadenitis (n=26)
+  Symptoms : Vomiting, Reduced Wool Growth, Reduced Mobility, Loss of Appetite, Swollen Legs
+  Flags    : appetite loss, vomiting, coughing, labored breathing, skin lesions
+  Vitals   : temp=39.4°C  HR=84 bpm
+
+• Gastrointestinal Infection (n=23)
+  Symptoms : Labored Breathing, Loss of Appetite, Diarrhea, Weight Loss, Coughing
+  Flags    : appetite loss, vomiting, diarrhea, coughing, labored breathing, lameness, skin lesions, nasal discharge
+  Vitals   : temp=39.4°C  HR=88 bpm
+
+────────────────────────────────────────────────────────────
+  PIG — 13 diseases
+────────────────────────────────────────────────────────────
+• Swine Influenza (n=242)
+  Symptoms : Lethargy, Coughing, Loss of Appetite, Reduced Mobility, Weight Loss
+  Flags    : appetite loss, coughing
+  Vitals   : temp=39.3°C  HR=93 bpm
+
+• Actinobacillus Pleuropneumonia (n=180)
+  Symptoms : Lethargy, Fever, Loss of Appetite, Skin Lesions, Sneezing
+  Flags    : appetite loss, vomiting, coughing, labored breathing, lameness
+  Vitals   : temp=39.3°C  HR=93 bpm
+
+• Swine Fever (n=78)
+  Symptoms : Lethargy, Loss of Appetite, Decreased Milk Yield, Dehydration, Reduced Mobility
+  Flags    : appetite loss, vomiting, coughing, labored breathing, lameness, skin lesions
+  Vitals   : temp=39.4°C  HR=93 bpm
+
+• Porcine Epidemic Diarrhea (n=74)
+  Symptoms : Lethargy, Swollen Joints, Swelling, Nasal Discharge, Coughing
+  Flags    : appetite loss, vomiting, coughing, labored breathing, skin lesions, eye discharge
+  Vitals   : temp=39.4°C  HR=92 bpm
+
+• Swine Erysipelas (n=71)
+  Symptoms : Vomiting, Reduced Appetite, Labored Breathing, Coughing, Lethargy
+  Flags    : appetite loss, vomiting, coughing, lameness, skin lesions
+  Vitals   : temp=39.3°C  HR=92 bpm
+
+• Swine Flu (n=54)
+  Symptoms : Appetite Loss, Nasal Discharge, Lethargy, Swollen Joints, Weight Loss
+  Flags    : appetite loss, vomiting, diarrhea, coughing, lameness, skin lesions, eye discharge
+  Vitals   : temp=39.4°C  HR=92 bpm
+
+• Swine Dysentery (n=49)
+  Symptoms : Vomiting, Swollen Legs, Reduced Wool Production, Labored Breathing, Reduced Wool Growth
+  Flags    : appetite loss, vomiting, coughing, labored breathing, skin lesions, eye discharge
+  Vitals   : temp=39.3°C  HR=91 bpm
+
+• Porcine Respiratory Disease Complex (n=47)
+  Symptoms : Lethargy, Appetite Loss, Reduced Mobility, Reduced Appetite, Loss of Appetite
+  Flags    : appetite loss, coughing, labored breathing, lameness, eye discharge
+  Vitals   : temp=39.4°C  HR=92 bpm
+
+• African Swine Fever (n=46)
+  Symptoms : Reduced Wool Growth, Fever, Nasal Discharge, Reduced Mobility, Swollen Legs
+  Flags    : appetite loss, coughing, labored breathing, skin lesions
+  Vitals   : temp=39.4°C  HR=91 bpm
+
+• Porcine Reproductive and Respiratory Syndrome (n=29)
+  Symptoms : Coughing, Appetite Loss, Loss of Appetite, Dehydration, Sneezing
+  Flags    : appetite loss, coughing, labored breathing, lameness, skin lesions
+  Vitals   : temp=39.3°C  HR=91 bpm
+
+• Porcine Circovirus Disease (n=29)
+  Symptoms : Skin Lesions, Coughing, Decreased Milk Yield, Diarrhea, Labored Breathing
+  Flags    : appetite loss, diarrhea, coughing, lameness
+  Vitals   : temp=39.2°C  HR=94 bpm
+
+• Porcine Epidemic Diarrhea Virus (n=27)
+  Symptoms : Vomiting, Reduced Milk Production, Nasal Discharge, Coughing, Lethargy
+  Flags    : appetite loss, diarrhea, coughing, labored breathing, eye discharge
+  Vitals   : temp=39.4°C  HR=91 bpm
+
+• Actinobacillus Suis (n=22)
+  Symptoms : Lethargy, Weight Loss, Coughing, Appetite Loss, Reduced Milk Production
+  Flags    : appetite loss, vomiting, coughing, labored breathing, lameness, skin lesions
+  Vitals   : temp=39.4°C  HR=91 bpm
+
+────────────────────────────────────────────────────────────
+  RABBIT — 14 diseases
+────────────────────────────────────────────────────────────
+• Rabbit Hemorrhagic Disease (n=147)
+  Symptoms : Skin Lesions, Decreased Milk Yield, Sneezing, Lameness, Nasal Discharge
+  Flags    : appetite loss, vomiting, diarrhea, coughing, lameness
+  Vitals   : temp=39.2°C  HR=148 bpm
+
+• Myxomatosis (n=145)
+  Symptoms : Fever, Nasal Discharge, Sneezing, Reduced Wool Growth, Swollen Legs
+  Flags    : appetite loss, diarrhea, coughing, lameness, skin lesions
+  Vitals   : temp=39.2°C  HR=147 bpm
+
+• Rabbit Viral Hemorrhagic Disease (n=112)
+  Symptoms : Fever, Loss of Appetite, Labored Breathing, Reduced Appetite, Appetite Loss
+  Flags    : appetite loss, vomiting, diarrhea, coughing, labored breathing, lameness, eye discharge
+  Vitals   : temp=39.2°C  HR=147 bpm
+
+• Pasteurellosis (n=111)
+  Symptoms : Reduced Appetite, Nasal Discharge, Sneezing, Reduced Mobility, Fever
+  Flags    : appetite loss, diarrhea, coughing, lameness, skin lesions
+  Vitals   : temp=39.2°C  HR=147 bpm
+
+• Rabbit Syphilis (n=68)
+  Symptoms : Nasal Discharge, Reduced Mobility, Reduced Wool Growth, Sneezing, Eye Discharge
+  Flags    : appetite loss, vomiting, coughing, lameness
+  Vitals   : temp=39.3°C  HR=148 bpm
+
+• Respiratory Infection (n=60)
+  Symptoms : Vomiting, Loss of Appetite, Nasal Discharge, Reduced Wool Growth, Reduced Milk Production
+  Flags    : appetite loss, vomiting, coughing, eye discharge
+  Vitals   : temp=39.2°C  HR=146 bpm
+
+• Snuffles (n=32)
+  Symptoms : Reduced Wool Production, Swollen Legs, Reduced Wool Growth, Swelling, Vomiting
+  Flags    : appetite loss, coughing, skin lesions
+  Vitals   : temp=39.5°C  HR=149 bpm
+
+• Upper Respiratory Infection (n=27)
+  Symptoms : Swelling, Fever, Swollen Legs, Nasal Discharge, Sneezing
+  Flags    : appetite loss, vomiting, coughing, skin lesions, eye discharge
+  Vitals   : temp=39.4°C  HR=145 bpm
+
+• Enteritis (n=22)
+  Symptoms : Fever, Swollen Legs, Labored Breathing, Diarrhea, Dehydration
+  Flags    : appetite loss, coughing, lameness, skin lesions, eye discharge
+  Vitals   : temp=39.2°C  HR=144 bpm
+
+• Rabbit Calicivirus (n=22)
+  Symptoms : Eye Discharge, Weight Loss, Lameness, Nasal Discharge, Labored Breathing
+  Flags    : appetite loss, coughing, labored breathing, lameness
+  Vitals   : temp=39.4°C  HR=145 bpm
+
+• Pneumonia (n=21)
+  Symptoms : Fever, Nasal Discharge, Sneezing, Loss of Appetite, Vomiting
+  Flags    : appetite loss, vomiting, diarrhea, coughing, labored breathing, lameness, skin lesions, eye discharge
+  Vitals   : temp=39.1°C  HR=144 bpm
+
+• Viral Hemorrhagic Disease (n=21)
+  Symptoms : Diarrhea, Reduced Wool Growth, Skin Lesions, Loss of Appetite, Swollen Joints
+  Flags    : appetite loss, vomiting, coughing, lameness, skin lesions, eye discharge
+  Vitals   : temp=39.3°C  HR=143 bpm
+
+• Ringworm (n=15)
+  Symptoms : Fever, Lethargy, Appetite Loss, Weight Loss, Nasal Discharge
+  Flags    : appetite loss, vomiting, coughing, lameness, skin lesions
+  Vitals   : temp=39.2°C  HR=140 bpm
+
+• Gastrointestinal Stasis (n=7)
+  Symptoms : Weight Loss, Lethargy, Swollen Joints, Nasal Discharge, Diarrhea
+  Flags    : appetite loss, coughing, labored breathing, lameness, nasal discharge, eye discharge
+  Vitals   : temp=39.4°C  HR=148 bpm

@@ -1,0 +1,114 @@
+[
+  {
+    "feature": "Weight_norm",
+    "importance": 0.1204
+  },
+  {
+    "feature": "Heart_Rate_norm",
+    "importance": 0.1025
+  },
+  {
+    "feature": "Breed_encoded",
+    "importance": 0.0856
+  },
+  {
+    "feature": "Duration_Days_norm",
+    "importance": 0.0817
+  },
+  {
+    "feature": "Body_Temperature_C_norm",
+    "importance": 0.076
+  },
+  {
+    "feature": "temp_deviation_norm",
+    "importance": 0.0751
+  },
+  {
+    "feature": "Age_norm",
+    "importance": 0.0705
+  },
+  {
+    "feature": "symptom_count",
+    "importance": 0.0655
+  },
+  {
+    "feature": "Gender_bin",
+    "importance": 0.0273
+  },
+  {
+    "feature": "Vomiting_bin",
+    "importance": 0.0267
+  },
+  {
+    "feature": "Labored_Breathing_bin",
+    "importance": 0.0267
+  },
+  {
+    "feature": "Eye_Discharge_bin",
+    "importance": 0.0264
+  },
+  {
+    "feature": "Skin_Lesions_bin",
+    "importance": 0.0262
+  },
+  {
+    "feature": "Nasal_Discharge_bin",
+    "importance": 0.0259
+  },
+  {
+    "feature": "Diarrhea_bin",
+    "importance": 0.0256
+  },
+  {
+    "feature": "Lameness_bin",
+    "importance": 0.0254
+  },
+  {
+    "feature": "Coughing_bin",
+    "importance": 0.0243
+  },
+  {
+    "feature": "Appetite_Loss_bin",
+    "importance": 0.016
+  },
+  {
+    "feature": "is_fever",
+    "importance": 0.0133
+  },
+  {
+    "feature": "animal_Horse",
+    "importance": 0.0077
+  },
+  {
+    "feature": "animal_Pig",
+    "importance": 0.0076
+  },
+  {
+    "feature": "animal_Sheep",
+    "importance": 0.0071
+  },
+  {
+    "feature": "animal_Dog",
+    "importance": 0.0068
+  },
+  {
+    "feature": "animal_Cow",
+    "importance": 0.0067
+  },
+  {
+    "feature": "animal_Cat",
+    "importance": 0.0062
+  },
+  {
+    "feature": "animal_Goat",
+    "importance": 0.006
+  },
+  {
+    "feature": "animal_Rabbit",
+    "importance": 0.0057
+  },
+  {
+    "feature": "high_heart_rate",
+    "importance": 0.0051
+  }
+]
