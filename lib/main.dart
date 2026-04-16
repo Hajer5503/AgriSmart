@@ -15,6 +15,8 @@ import 'pages/tasks_page.dart';
 import 'widgets/chatbot_widget.dart';
 import 'widgets/plant_camera_widget.dart';
 
+import 'services/field_service.dart'; // à la place de farm_service.dart
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(const AgrismartApp());
