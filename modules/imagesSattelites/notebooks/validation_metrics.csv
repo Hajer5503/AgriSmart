@@ -1,0 +1,7 @@
+Classe,IoU,Accuracy_%
+Eau/Roche,0.886,99.3
+Sol nu,0.985,98.6
+Vég. sparse,0.545,79.5
+Vég. modérée,0.769,86.2
+Vég. dense,0.787,86.5
+Très dense,0.869,95.3

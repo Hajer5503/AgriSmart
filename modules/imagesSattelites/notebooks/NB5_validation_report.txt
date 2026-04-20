@@ -1,0 +1,44 @@
+
+======================================================================
+AGRISMART — RAPPORT DE VALIDATION NB5
+Béja, Tunisie | Sentinel-2 2025
+======================================================================
+
+MODÈLE : U-Net + MobileNetV2
+Epoch  : 15
+Val Loss : 0.1957
+
+MÉTRIQUES GLOBALES :
+  Overall Pixel Accuracy : 94.4%  (target ≥ 85%)
+  Mean IoU               : 0.807    (target ≥ 0.70)
+  Status : ✅ OBJECTIFS ATTEINTS
+
+IoU PAR CLASSE :
+  Eau/Roche            : 0.886
+  Sol nu               : 0.985
+  Vég. sparse          : 0.545
+  Vég. modérée         : 0.769
+  Vég. dense           : 0.787
+  Très dense           : 0.869
+
+RAPPORT SKLEARN :
+              precision    recall  f1-score   support
+
+   Eau/Roche      0.892     0.993     0.940    103958
+      Sol nu      0.999     0.986     0.993  10280975
+ Vég. sparse      0.634     0.795     0.706    410014
+Vég. modérée      0.876     0.862     0.869   1705144
+  Vég. dense      0.896     0.865     0.881   3339002
+  Très dense      0.908     0.953     0.930   3346571
+
+    accuracy                          0.944  19185664
+   macro avg      0.868     0.909     0.886  19185664
+weighted avg      0.946     0.944     0.945  19185664
+
+
+FICHIERS PRODUITS :
+  NB5_confusion_matrix.png
+  NB5_metrics_barplot.png
+  NB5_worst_predictions.png
+  validation_metrics.csv
+======================================================================
