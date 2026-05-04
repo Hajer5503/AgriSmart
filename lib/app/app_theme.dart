@@ -16,6 +16,96 @@ class AppTheme {
   static const Color cardGreen = Color(0xFFE8F9ED);
   static const Color cardWhite = Color(0xFFFFFFFF);
 
+  static ThemeData dark() {
+    return ThemeData(
+      useMaterial3: true,
+      scaffoldBackgroundColor: const Color(0xFF0D1117),
+      colorScheme: ColorScheme(
+        brightness: Brightness.dark,
+        primary: greenPrimary,
+        onPrimary: Colors.white,
+        primaryContainer: const Color(0xFF0D3318),
+        onPrimaryContainer: greenLight,
+        secondary: greenLight,
+        onSecondary: Colors.white,
+        secondaryContainer: const Color(0xFF161B22),
+        onSecondaryContainer: greenLight,
+        tertiary: greenAccent,
+        onTertiary: Colors.white,
+        tertiaryContainer: const Color(0xFF1C2128),
+        onTertiaryContainer: greenLight,
+        surface: const Color(0xFF161B22),
+        onSurface: const Color(0xFFE6EDF3),
+        surfaceContainerHighest: const Color(0xFF1C2128),
+        onSurfaceVariant: const Color(0xFF8B949E),
+        outline: const Color(0xFF30363D),
+        error: const Color(0xFFFF453A),
+        onError: Colors.white,
+      ),
+      appBarTheme: const AppBarTheme(
+        backgroundColor: Color(0xFF161B22),
+        foregroundColor: Color(0xFFE6EDF3),
+        elevation: 0,
+        centerTitle: false,
+        titleTextStyle: TextStyle(
+          fontSize: 28,
+          fontWeight: FontWeight.w700,
+          color: Color(0xFFE6EDF3),
+          letterSpacing: -0.5,
+        ),
+      ),
+      cardTheme: CardThemeData(
+        color: const Color(0xFF1C2128),
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: const BorderSide(color: Color(0xFF30363D), width: 1),
+        ),
+      ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          backgroundColor: greenPrimary,
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          elevation: 0,
+          textStyle: const TextStyle(
+            fontSize: 17,
+            fontWeight: FontWeight.w600,
+            letterSpacing: -0.4,
+          ),
+        ),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: const Color(0xFF1C2128),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFF30363D), width: 1),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFF30363D), width: 1),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: greenPrimary, width: 2),
+        ),
+        labelStyle: const TextStyle(color: Color(0xFF8B949E), fontSize: 16),
+      ),
+      textTheme: const TextTheme(
+        displayLarge: TextStyle(fontSize: 34, fontWeight: FontWeight.w700, letterSpacing: -1.0, height: 1.2, color: Color(0xFFE6EDF3)),
+        displayMedium: TextStyle(fontSize: 28, fontWeight: FontWeight.w700, letterSpacing: -0.5, height: 1.3, color: Color(0xFFE6EDF3)),
+        titleLarge: TextStyle(fontSize: 22, fontWeight: FontWeight.w600, letterSpacing: -0.4, color: Color(0xFFE6EDF3)),
+        titleMedium: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, letterSpacing: -0.3, color: Color(0xFFE6EDF3)),
+        bodyLarge: TextStyle(fontSize: 17, fontWeight: FontWeight.w400, letterSpacing: -0.4, color: Color(0xFFE6EDF3)),
+        bodyMedium: TextStyle(fontSize: 15, fontWeight: FontWeight.w400, letterSpacing: -0.3, color: Color(0xFFE6EDF3)),
+        labelLarge: TextStyle(fontSize: 17, fontWeight: FontWeight.w600, letterSpacing: -0.4, color: Color(0xFFE6EDF3)),
+      ),
+    );
+  }
+
   static ThemeData light() {
     final scheme = ColorScheme(
       brightness: Brightness.light,

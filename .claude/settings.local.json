@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/RACHID/Documents/4DS5/PI/agrismart-backend/**)"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\RACHID\\Documents\\4DS5\\PI\\agrismart-backend"
+    ]
+  }
+}

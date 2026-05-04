@@ -118,7 +118,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     DropdownMenuItem(value: 'breeder', child: Text('🐄 Éleveur')),
                     DropdownMenuItem(value: 'vet', child: Text('🩺 Vétérinaire')),
                     DropdownMenuItem(value: 'agronomist', child: Text('🔬 Agronome')),
-                    DropdownMenuItem(value: 'admin', child: Text('⚙️ Administrateur')),
                   ],
                   onChanged: (value) {
                     setState(() {

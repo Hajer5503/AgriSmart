@@ -1,45 +1,76 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 
 import 'app/app_theme.dart';
 import 'services/auth_service.dart';
+import 'services/app_settings.dart';
 import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
+import 'pages/profile_page.dart';
 
 import 'pages/home_page.dart';
 import 'pages/parcels_page.dart';
 import 'pages/alerts_page.dart';
 import 'pages/tasks_page.dart';
 
+import 'pages/breeder/breeder_home_page.dart';
+import 'pages/breeder/livestock_page.dart';
+import 'pages/vet/vet_home_page.dart';
+import 'pages/vet/consultations_page.dart';
+import 'pages/agronomist/agronomist_home_page.dart';
+import 'pages/agronomist/analyses_page.dart';
+
 import 'widgets/chatbot_widget.dart';
 import 'widgets/plant_camera_widget.dart';
 
-import 'services/field_service.dart'; // à la place de farm_service.dart
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const AgrismartApp());
+  final settings = AppSettings();
+  await settings.load();
+  runApp(AgrismartApp(settings: settings));
 }
 
 class AgrismartApp extends StatelessWidget {
-  const AgrismartApp({super.key});
+  final AppSettings settings;
+  const AgrismartApp({super.key, required this.settings});
 
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
-      providers: [Provider<AuthService>(create: (_) => AuthService())],
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'Agrismart',
-        theme: AppTheme.light(),
-        initialRoute: '/',
-        routes: {
-          '/': (context) => const AuthCheckScreen(),
-          '/login': (context) => const LoginScreen(),
-          '/register': (context) => const RegisterScreen(),
-          '/home': (context) => const MainShell(),
-        },
+      providers: [
+        ChangeNotifierProvider.value(value: settings),
+        ChangeNotifierProvider<AuthService>(create: (_) => AuthService()),
+      ],
+      child: Consumer<AppSettings>(
+        builder: (context, appSettings, _) => MaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: 'Agrismart',
+          theme: AppTheme.light(),
+          darkTheme: AppTheme.dark(),
+          themeMode: appSettings.themeMode,
+          locale: appSettings.locale,
+          supportedLocales: const [
+            Locale('fr'),
+            Locale('ar'),
+            Locale('en'),
+          ],
+          localizationsDelegates: const [
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          initialRoute: '/',
+          routes: {
+            '/': (context) => const AuthCheckScreen(),
+            '/login': (context) => const LoginScreen(),
+            '/register': (context) => const RegisterScreen(),
+            '/home': (context) => const MainShell(),
+          },
+        ),
       ),
     );
   }
@@ -75,12 +106,12 @@ class _AuthCheckScreenState extends State<AuthCheckScreen> {
 // ─────────────────────────────────────────────────────────────
 // Config de navigation par rôle
 // ─────────────────────────────────────────────────────────────
-Map<String, dynamic> _navConfigForRole(String role) {
+Map<String, dynamic> _navConfigForRole(String role, AppSettings s) {
   switch (role) {
     case 'admin':
       return {
         'pages': const [HomePage(), ParcelsPage(), AlertsPage(), TasksPage()],
-        'titles': const ['Dashboard', 'Fermes', 'Alertes', 'Tâches'],
+        'titles': [s.tr('nav_dashboard'), s.tr('nav_farms'), s.tr('nav_alerts'), s.tr('nav_tasks')],
         'icons': const [
           Icons.dashboard_rounded,
           Icons.map_rounded,
@@ -90,39 +121,41 @@ Map<String, dynamic> _navConfigForRole(String role) {
       };
     case 'vet':
       return {
-        'pages': const [HomePage(), AlertsPage(), TasksPage()],
-        'titles': const ['Accueil', 'Alertes Santé', 'Tâches'],
+        'pages': const [VetHomePage(), ConsultationsPage(), AlertsPage(), TasksPage()],
+        'titles': [s.tr('nav_accueil'), s.tr('nav_consultations'), s.tr('nav_alerts'), s.tr('nav_tasks')],
         'icons': const [
           Icons.home_rounded,
+          Icons.medical_services_rounded,
           Icons.health_and_safety_rounded,
           Icons.check_circle_rounded,
         ],
       };
     case 'agronomist':
       return {
-        'pages': const [HomePage(), ParcelsPage(), AlertsPage(), TasksPage()],
-        'titles': const ['Accueil', 'Parcelles', 'Alertes', 'Tâches'],
+        'pages': const [AgronomistHomePage(), ParcelsPage(), AnalysesPage(), TasksPage()],
+        'titles': [s.tr('nav_accueil'), s.tr('nav_parcels'), s.tr('nav_analyses'), s.tr('nav_tasks')],
         'icons': const [
           Icons.home_rounded,
           Icons.grass_rounded,
-          Icons.notifications_rounded,
+          Icons.science_rounded,
           Icons.check_circle_rounded,
         ],
       };
     case 'breeder':
       return {
-        'pages': const [HomePage(), AlertsPage(), TasksPage()],
-        'titles': const ['Accueil', 'Alertes Bétail', 'Tâches'],
+        'pages': const [BreederHomePage(), LivestockPage(), AlertsPage(), TasksPage()],
+        'titles': [s.tr('nav_accueil'), s.tr('nav_livestock'), s.tr('nav_alerts'), s.tr('nav_tasks')],
         'icons': const [
           Icons.home_rounded,
           Icons.pets_rounded,
+          Icons.warning_amber_rounded,
           Icons.check_circle_rounded,
         ],
       };
     default: // farmer
       return {
         'pages': const [HomePage(), ParcelsPage(), AlertsPage(), TasksPage()],
-        'titles': const ['Agrismart', 'Parcelles', 'Alertes', 'Tâches'],
+        'titles': [s.tr('nav_home'), s.tr('nav_parcels'), s.tr('nav_alerts'), s.tr('nav_tasks')],
         'icons': const [
           Icons.home_rounded,
           Icons.map_rounded,
@@ -133,13 +166,13 @@ Map<String, dynamic> _navConfigForRole(String role) {
   }
 }
 
-String _roleBadgeLabel(String role) {
+String _roleBadgeLabel(String role, AppSettings s) {
   switch (role) {
-    case 'admin': return '⚙️ Administrateur';
-    case 'vet': return '🩺 Vétérinaire';
-    case 'agronomist': return '🌿 Agronome';
-    case 'breeder': return '🐄 Éleveur';
-    default: return '🌾 Agriculteur';
+    case 'admin': return s.tr('role_admin');
+    case 'vet': return s.tr('role_vet');
+    case 'agronomist': return s.tr('role_agronomist');
+    case 'breeder': return s.tr('role_breeder');
+    default: return s.tr('role_farmer');
   }
 }
 
@@ -182,14 +215,24 @@ class _MainShellState extends State<MainShell>
 
   @override
   Widget build(BuildContext context) {
-    final authService = Provider.of<AuthService>(context, listen: false);
+    final authService = context.watch<AuthService>();
+    final settings = context.watch<AppSettings>();
     final currentUser = authService.currentUser;
     final role = currentUser?.role ?? 'farmer';
 
-    final config = _navConfigForRole(role);
-    final pages = config['pages'] as List<Widget>;
+    final config = _navConfigForRole(role, settings);
     final titles = config['titles'] as List<String>;
-    final icons = config['icons'] as List<IconData>;
+    final icons  = config['icons']  as List<IconData>;
+
+    void navigateTo(int i) => setState(() => _index = i);
+    final rawPages = config['pages'] as List<Widget>;
+    final pages = rawPages.map((p) {
+      if (p is HomePage) return HomePage(onNavigate: navigateTo);
+      if (p is BreederHomePage) return BreederHomePage(onNavigate: navigateTo);
+      if (p is VetHomePage) return VetHomePage(onNavigate: navigateTo);
+      if (p is AgronomistHomePage) return AgronomistHomePage(onNavigate: navigateTo);
+      return p;
+    }).toList();
 
     if (_index >= pages.length) _index = 0;
 
@@ -238,7 +281,7 @@ class _MainShellState extends State<MainShell>
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
-                    _roleBadgeLabel(role),
+                    _roleBadgeLabel(role, settings),
                     style: TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.w600,
@@ -257,39 +300,12 @@ class _MainShellState extends State<MainShell>
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: AppTheme.glassBorder, width: 1),
             ),
-            child: PopupMenuButton<String>(
+            child: IconButton(
               icon: const Icon(Icons.person_rounded),
-              itemBuilder: (context) => [
-                PopupMenuItem<String>(
-                  enabled: false,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(currentUser?.name ?? 'Utilisateur',
-                          style: const TextStyle(fontWeight: FontWeight.w700)),
-                      Text(currentUser?.email ?? '',
-                          style: const TextStyle(
-                              fontSize: 12, color: Colors.grey)),
-                    ],
-                  ),
-                ),
-                const PopupMenuDivider(),
-                PopupMenuItem<String>(
-                  value: 'logout',
-                  onTap: () async {
-                    await authService.logout();
-                    if (context.mounted) {
-                      Navigator.of(context).pushReplacementNamed('/login');
-                    }
-                  },
-                  child: const Row(children: [
-                    Icon(Icons.logout_rounded, color: Colors.red),
-                    SizedBox(width: 8),
-                    Text('Déconnexion',
-                        style: TextStyle(color: Colors.red)),
-                  ]),
-                ),
-              ],
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const ProfilePage()),
+              ),
             ),
           ),
         ],

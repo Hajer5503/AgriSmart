@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class ApiService {
@@ -36,6 +37,37 @@ class ApiService {
         return handler.next(error);
       },
     ));
+  }
+
+  static String extractError(Object e) {
+    if (e is DioException) {
+      assert(() {
+        debugPrint('[API] type=${e.type} status=${e.response?.statusCode} data=${e.response?.data}');
+        return true;
+      }());
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.sendTimeout) {
+        return 'Le serveur ne répond pas. Réessayez dans quelques secondes.';
+      }
+      if (e.type == DioExceptionType.connectionError) {
+        return 'Impossible de joindre le serveur. Vérifiez votre connexion.';
+      }
+      if (e.response?.statusCode == 401) {
+        return 'Session expirée. Veuillez vous reconnecter.';
+      }
+      final body = e.response?.data;
+      if (body is Map) {
+        final debug = body['debug']?.toString();
+        final msg   = body['message']?.toString();
+        if (debug != null && debug.isNotEmpty) return 'Erreur serveur : $debug';
+        if (msg   != null && msg.isNotEmpty)   return msg;
+      }
+      final code = e.response?.statusCode;
+      if (code != null) return 'Erreur HTTP $code.';
+    }
+    assert(() { debugPrint('[API] Non-Dio: $e'); return true; }());
+    return e.toString();
   }
 
   // GET request

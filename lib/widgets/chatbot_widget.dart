@@ -1,6 +1,5 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import '../services/api_service.dart';
 import '../services/chatbot_service.dart';
 
 // ─── Modèle message ──────────────────────────────────────
@@ -90,7 +89,7 @@ class _ChatbotWidgetState extends State<ChatbotWidget>
       });
     }
   } catch (e) {
-    print("ERREUR WIDGET: $e"); // Pour voir l'erreur dans VS Code
+    debugPrint("ERREUR WIDGET: $e");
     if (mounted) {
       setState(() => _messages.add(_Msg(
             text: '⚠️ Erreur : ${e.toString()}',

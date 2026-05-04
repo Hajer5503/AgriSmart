@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+
 import '../app/app_theme.dart';
 import '../services/field_service.dart';
-import '../services/auth_service.dart';
-import 'dart:ui';
+import '../services/api_service.dart';
+import '../services/irrigation_service.dart';
+
+
 
 class ParcelsPage extends StatefulWidget {
   const ParcelsPage({super.key});
@@ -68,7 +70,7 @@ class _ParcelsPageState extends State<ParcelsPage>
     final locationCtrl = TextEditingController();
     final areaCtrl = TextEditingController();
     String selectedType = 'Polyculture';
-    final types = ['Polyculture', 'Maraîchage', 'Céréales', 'Élevage', 'Arboriculture', 'Autre'];
+    final types = ['Polyculture', 'Maraichage', 'Cereales', 'Elevage', 'Arboriculture', 'Autre'];
 
     showModalBottomSheet(
       context: context,
@@ -91,7 +93,7 @@ class _ParcelsPageState extends State<ParcelsPage>
                 );
                 _load();
               } catch (e) {
-                if (mounted) _showError('Erreur création ferme');
+                if (mounted) _showError(ApiService.extractError(e));
               }
             },
             child: Column(
@@ -104,7 +106,7 @@ class _ParcelsPageState extends State<ParcelsPage>
                 _Field(ctrl: areaCtrl, label: 'Surface totale (ha)', icon: Icons.straighten_rounded, numeric: true),
                 const SizedBox(height: 12),
                 DropdownButtonFormField<String>(
-                  value: selectedType,
+                  initialValue: selectedType,
                   decoration: InputDecoration(
                     labelText: 'Type de ferme',
                     prefixIcon: const Icon(Icons.category_rounded),
@@ -157,7 +159,7 @@ class _ParcelsPageState extends State<ParcelsPage>
                 );
                 _load();
               } catch (e) {
-                if (mounted) _showError('Erreur création parcelle');
+                if (mounted) _showError(ApiService.extractError(e));
               }
             },
             child: Column(
@@ -165,7 +167,7 @@ class _ParcelsPageState extends State<ParcelsPage>
               children: [
                 // Sélection de la ferme
                 DropdownButtonFormField<int>(
-                  value: selectedFarmId,
+                  initialValue: selectedFarmId,
                   decoration: InputDecoration(
                     labelText: 'Ferme *',
                     prefixIcon: const Icon(Icons.agriculture_rounded),
@@ -182,7 +184,7 @@ class _ParcelsPageState extends State<ParcelsPage>
                 _Field(ctrl: cropCtrl, label: 'Culture actuelle (ex: Tomate)', icon: Icons.eco_rounded),
                 const SizedBox(height: 12),
                 DropdownButtonFormField<String>(
-                  value: selectedSoil,
+                  initialValue: selectedSoil,
                   decoration: InputDecoration(
                     labelText: 'Type de sol',
                     prefixIcon: const Icon(Icons.layers_rounded),
@@ -205,6 +207,15 @@ class _ParcelsPageState extends State<ParcelsPage>
       behavior: SnackBarBehavior.floating,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     ));
+  }
+
+  void _showIrrigationSheet(Field field) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _IrrigationSheet(field: field),
+    );
   }
 
   @override
@@ -287,6 +298,7 @@ class _ParcelsPageState extends State<ParcelsPage>
                         await _service.deleteField(field.id);
                         _load();
                       },
+                      onIrrigation: () => _showIrrigationSheet(field),
                     ),
                   ),
                 ),
@@ -410,7 +422,8 @@ class _FieldCard extends StatelessWidget {
   final Field field;
   final LinearGradient gradient;
   final VoidCallback onDelete;
-  const _FieldCard({required this.field, required this.gradient, required this.onDelete});
+  final VoidCallback onIrrigation;
+  const _FieldCard({required this.field, required this.gradient, required this.onDelete, required this.onIrrigation});
 
   @override
   Widget build(BuildContext context) {
@@ -480,6 +493,21 @@ class _FieldCard extends StatelessWidget {
                       Expanded(child: _Pill(icon: Icons.layers_rounded, label: 'Sol', value: field.soilType!)),
                     ]),
                   ],
+                  const SizedBox(height: 12),
+                  // Bouton irrigation IA
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: onIrrigation,
+                      icon: const Icon(Icons.water_drop_rounded, size: 16, color: Color(0xFF0EA5E9)),
+                      label: const Text('Conseiller Irrigation IA', style: TextStyle(fontSize: 13, color: Color(0xFF0EA5E9))),
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: Color(0xFF0EA5E9)),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                      ),
+                    ),
+                  ),
                   const SizedBox(height: 12),
                   // Barre de santé
                   Column(
@@ -672,6 +700,210 @@ class _Field extends StatelessWidget {
         labelText: label,
         prefixIcon: Icon(icon),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+// Bottom sheet : conseiller irrigation IA
+// ════════════════════════════════════════════════════════════
+class _IrrigationSheet extends StatefulWidget {
+  final Field field;
+  const _IrrigationSheet({required this.field});
+  @override
+  State<_IrrigationSheet> createState() => _IrrigationSheetState();
+}
+
+class _IrrigationSheetState extends State<_IrrigationSheet> {
+  final _api = ApiService();
+  late IrrigationService _service;
+  double _soilMoisture = 0.20;
+  IrrigationResult? _result;
+  bool _loading = false;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _service = IrrigationService(_api);
+  }
+
+  Future<void> _calculate() async {
+    setState(() { _loading = true; _error = null; _result = null; });
+    try {
+      final r = await _service.getRecommendation(
+        soilMoisture: _soilMoisture,
+        fieldId: widget.field.id,
+      );
+      if (mounted) setState(() { _result = r; _loading = false; });
+      // Alerte automatique si stress hydrique détecté
+      if (r.status == 'critique' || r.status == 'faible') {
+        _createStressAlert(r);
+      }
+    } catch (e) {
+      if (mounted) setState(() { _error = ApiService.extractError(e); _loading = false; });
+    }
+  }
+
+  Future<void> _createStressAlert(IrrigationResult r) async {
+    try {
+      await _api.post('/alerts', data: {
+        'farm_id':    widget.field.farmId,
+        'alert_type': 'water_stress',
+        'severity':   r.status == 'critique' ? 'critical' : 'high',
+        'title':      'Stress hydrique — ${widget.field.name}',
+        'message':    r.advice,
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('⚠️ Alerte créée pour ${widget.field.name}'),
+          backgroundColor: r.status == 'critique' ? Colors.red : Colors.orange,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ));
+      }
+    } catch (_) { /* silencieux — ne bloque pas l'affichage du résultat */ }
+  }
+
+  Color get _statusColor {
+    switch (_result?.status) {
+      case 'surplus':      return const Color(0xFF0EA5E9);
+      case 'optimal':      return const Color(0xFF22C55E);
+      case 'sous_optimal': return const Color(0xFFF59E0B);
+      case 'faible':       return const Color(0xFFEF4444);
+      case 'critique':     return const Color(0xFF7C3AED);
+      default:             return Colors.grey;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      padding: EdgeInsets.only(
+        left: 24, right: 24, top: 24,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+      ),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(child: Container(width: 40, height: 4,
+                decoration: BoxDecoration(color: Colors.black12, borderRadius: BorderRadius.circular(2)))),
+            const SizedBox(height: 20),
+
+            // Titre
+            Row(children: [
+              const Icon(Icons.water_drop_rounded, color: Color(0xFF0EA5E9), size: 24),
+              const SizedBox(width: 10),
+              Expanded(child: Text(
+                'Irrigation — ${widget.field.name}',
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+              )),
+            ]),
+            if (widget.field.currentCrop != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 4, left: 34),
+                child: Text(widget.field.currentCrop!,
+                    style: TextStyle(fontSize: 13, color: Colors.grey.shade500)),
+              ),
+            const SizedBox(height: 24),
+
+            // Slider humidité sol
+            Text(
+              'Humidité du sol : ${(_soilMoisture * 100).toStringAsFixed(0)}%',
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 4),
+            Row(children: [
+              const Text('5%', style: TextStyle(fontSize: 11, color: Colors.grey)),
+              Expanded(
+                child: Slider(
+                  value: _soilMoisture,
+                  min: 0.05, max: 0.40, divisions: 35,
+                  activeColor: const Color(0xFF0EA5E9),
+                  onChanged: (v) => setState(() { _soilMoisture = v; _result = null; }),
+                ),
+              ),
+              const Text('40%', style: TextStyle(fontSize: 11, color: Colors.grey)),
+            ]),
+            // Bande optimale FAO-56
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                Text('Seuil stress : 20.8%', style: TextStyle(fontSize: 11, color: Colors.orange.shade600)),
+                Text('Capacité champ : 28%', style: TextStyle(fontSize: 11, color: Colors.green.shade600)),
+              ]),
+            ),
+            const SizedBox(height: 20),
+
+            // Bouton calculer
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                onPressed: _loading ? null : _calculate,
+                icon: _loading
+                    ? const SizedBox(width: 16, height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                    : const Icon(Icons.calculate_rounded),
+                label: Text(_loading ? 'Calcul en cours…' : 'Calculer la recommandation'),
+                style: FilledButton.styleFrom(
+                  backgroundColor: const Color(0xFF0EA5E9),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                ),
+              ),
+            ),
+
+            // Erreur
+            if (_error != null) ...[
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(color: Colors.red.shade50, borderRadius: BorderRadius.circular(12)),
+                child: Text(_error!, style: const TextStyle(color: Colors.red, fontSize: 13)),
+              ),
+            ],
+
+            // Résultat
+            if (_result != null) ...[
+              const SizedBox(height: 20),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
+                  color: _statusColor.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: _statusColor.withValues(alpha: 0.3)),
+                ),
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Row(children: [
+                    Icon(Icons.water_drop_rounded, color: _statusColor, size: 28),
+                    const SizedBox(width: 12),
+                    Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      Text('${_result!.recommendedMm} mm / jour',
+                          style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: _statusColor)),
+                      Text(_result!.statusLabel,
+                          style: TextStyle(fontSize: 13, color: _statusColor, fontWeight: FontWeight.w600)),
+                    ]),
+                  ]),
+                  const SizedBox(height: 12),
+                  Text(_result!.advice,
+                      style: const TextStyle(fontSize: 14, height: 1.4, color: Color(0xFF1C1C1E))),
+                  const SizedBox(height: 10),
+                  Text('Source : ${_result!.source}',
+                      style: TextStyle(fontSize: 11, color: Colors.grey.shade500)),
+                ]),
+              ),
+            ],
+            const SizedBox(height: 8),
+          ],
+        ),
       ),
     );
   }

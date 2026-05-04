@@ -87,11 +87,12 @@ class AuthService {
   }
 }*/
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../models/user.dart';
 import 'api_service.dart';
 
-class AuthService {
+class AuthService extends ChangeNotifier {
   final ApiService _apiService = ApiService();
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
@@ -104,12 +105,12 @@ class AuthService {
       'password': password,
     });
 
-    // ✅ Sauvegarde le VRAI token JWT
     final token = response.data['token'] as String;
     final userData = response.data['user'];
 
     await _storage.write(key: 'auth_token', value: token);
     _currentUser = User.fromJson(userData);
+    notifyListeners();
     return _currentUser!;
   }
 
@@ -133,12 +134,14 @@ class AuthService {
 
     await _storage.write(key: 'auth_token', value: token);
     _currentUser = User.fromJson(userData);
+    notifyListeners();
     return _currentUser!;
   }
 
   Future<void> logout() async {
     await _storage.delete(key: 'auth_token');
     _currentUser = null;
+    notifyListeners();
   }
 
   Future<bool> isLoggedIn() async {
@@ -151,10 +154,12 @@ class AuthService {
       if (!await isLoggedIn()) return null;
       final response = await _apiService.get('/auth/me');
       _currentUser = User.fromJson(response.data);
+      notifyListeners();
       return _currentUser;
     } catch (e) {
-      // Token expiré ou invalide → déconnecte
       await _storage.delete(key: 'auth_token');
+      _currentUser = null;
+      notifyListeners();
       return null;
     }
   }

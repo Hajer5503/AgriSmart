@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../app/app_theme.dart';
+import '../services/app_settings.dart';
 import 'dart:ui';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final Function(int)? onNavigate;
+  const HomePage({super.key, this.onNavigate});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -35,34 +38,27 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
   @override
   Widget build(BuildContext context) {
+    final s = context.watch<AppSettings>();
     return SafeArea(
       child: FadeTransition(
         opacity: _fadeAnimation,
         child: ListView(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
           children: [
-            // Header avec effet de profondeur
-            _buildHeader(),
+            _buildHeader(s),
             const SizedBox(height: 24),
-
-            // Cartes de statistiques avec glassmorphism
-            _buildStatsGrid(),
-            
+            _buildStatsGrid(s),
             const SizedBox(height: 32),
-            
-            // Section actions rapides
-            _buildQuickActionsHeader(),
+            _buildQuickActionsHeader(s),
             const SizedBox(height: 16),
-            
-            // Actions rapides avec animations
-            ..._buildQuickActions(context),
+            ..._buildQuickActions(context, s),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(AppSettings s) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -75,7 +71,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         ),
         const SizedBox(height: 4),
         Text(
-          "Votre ferme intelligente en un coup d'œil",
+          s.tr('home_subtitle'),
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
             color: AppTheme.greenDark.withValues(alpha: 0.6),
           ),
@@ -84,30 +80,30 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     );
   }
 
-  Widget _buildStatsGrid() {
+  Widget _buildStatsGrid(AppSettings s) {
     return Column(
       children: [
         Row(
-          children: const [
+          children: [
             Expanded(
               child: _GlassInfoCard(
-                title: "Humidité",
+                title: s.tr('home_humidity'),
                 value: "72%",
                 icon: Icons.water_drop_rounded,
-                gradient: LinearGradient(
+                gradient: const LinearGradient(
                   colors: [Color(0xFF4FACFE), Color(0xFF00F2FE)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
               ),
             ),
-            SizedBox(width: 16),
+            const SizedBox(width: 16),
             Expanded(
               child: _GlassInfoCard(
-                title: "Température",
+                title: s.tr('home_temperature'),
                 value: "24°C",
                 icon: Icons.thermostat_rounded,
-                gradient: LinearGradient(
+                gradient: const LinearGradient(
                   colors: [Color(0xFFFA709A), Color(0xFFFF9A56)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -118,26 +114,26 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         ),
         const SizedBox(height: 16),
         Row(
-          children: const [
+          children: [
             Expanded(
               child: _GlassInfoCard(
-                title: "Réservoir",
+                title: s.tr('home_reservoir'),
                 value: "85%",
                 icon: Icons.water_rounded,
-                gradient: LinearGradient(
+                gradient: const LinearGradient(
                   colors: [Color(0xFF4E65FF), Color(0xFF92EFFD)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
               ),
             ),
-            SizedBox(width: 16),
+            const SizedBox(width: 16),
             Expanded(
               child: _GlassInfoCard(
-                title: "Météo",
-                value: "Ensoleillé",
+                title: s.tr('home_weather'),
+                value: s.tr('home_weather_value'),
                 icon: Icons.wb_sunny_rounded,
-                gradient: LinearGradient(
+                gradient: const LinearGradient(
                   colors: [Color(0xFFFEAC5E), Color(0xFFFFC371)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -150,12 +146,12 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     );
   }
 
-  Widget _buildQuickActionsHeader() {
+  Widget _buildQuickActionsHeader(AppSettings s) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          "Actions rapides",
+          s.tr('home_quick_actions'),
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
             color: AppTheme.greenDark,
             fontWeight: FontWeight.w700,
@@ -168,7 +164,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             borderRadius: BorderRadius.circular(20),
           ),
           child: Text(
-            "3 disponibles",
+            s.tr('home_available'),
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: AppTheme.greenPrimary,
               fontWeight: FontWeight.w600,
@@ -179,46 +175,50 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     );
   }
 
-  List<Widget> _buildQuickActions(BuildContext context) {
+  List<Widget> _buildQuickActions(BuildContext context, AppSettings s) {
     final actions = [
       {
         'icon': Icons.play_circle_fill_rounded,
-        'title': 'Irriguer maintenant',
-        'subtitle': 'Démarrer l\'arrosage automatique',
+        'title': s.tr('home_irrigate'),
+        'subtitle': s.tr('home_irrigate_sub'),
         'gradient': const LinearGradient(
           colors: [Color(0xFF11998E), Color(0xFF38EF7D)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
+        'navIndex': 1,
       },
       {
         'icon': Icons.add_task_rounded,
-        'title': 'Ajouter une tâche',
-        'subtitle': 'Semis, traitement, récolte…',
+        'title': s.tr('home_add_task'),
+        'subtitle': s.tr('home_add_task_sub'),
         'gradient': const LinearGradient(
           colors: [Color(0xFF667EEA), Color(0xFF764BA2)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
+        'navIndex': 3,
       },
       {
         'icon': Icons.warning_amber_rounded,
-        'title': 'Voir les alertes',
-        'subtitle': 'Capteurs, météo, calendrier',
+        'title': s.tr('home_see_alerts'),
+        'subtitle': s.tr('home_see_alerts_sub'),
         'gradient': const LinearGradient(
           colors: [Color(0xFFF953C6), Color(0xFFB91D73)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
+        'navIndex': 2,
       },
     ];
 
     return actions.asMap().entries.map((entry) {
-      final index = entry.key;
+      final i = entry.key;
       final action = entry.value;
-      
+      final navIndex = action['navIndex'] as int;
+
       return TweenAnimationBuilder<double>(
-        duration: Duration(milliseconds: 300 + (index * 100)),
+        duration: Duration(milliseconds: 300 + (i * 100)),
         tween: Tween(begin: 0.0, end: 1.0),
         curve: Curves.easeOutBack,
         builder: (context, value, child) {
@@ -233,18 +233,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                   title: action['title'] as String,
                   subtitle: action['subtitle'] as String,
                   gradient: action['gradient'] as LinearGradient,
-                  onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('${action['title']} - En cours de développement'),
-                        behavior: SnackBarBehavior.floating,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        backgroundColor: AppTheme.greenPrimary,
-                      ),
-                    );
-                  },
+                  onTap: () => widget.onNavigate?.call(navIndex),
                 ),
               ),
             ),

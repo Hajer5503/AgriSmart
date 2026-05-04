@@ -69,8 +69,10 @@ class Field {
   }
 
   double get healthScore {
-    // Score fictif local — remplaceable par vraie donnée IoT
-    return currentCrop != null ? 0.85 : 0.4;
+    if (currentCrop == null || currentCrop!.isEmpty) return 0.4;
+    // Score varié par parcelle basé sur l'id (remplaçable par vraie donnée IoT)
+    const scores = [0.91, 0.74, 0.82, 0.67, 0.88, 0.71, 0.95, 0.63];
+    return scores[id % scores.length];
   }
 }
 

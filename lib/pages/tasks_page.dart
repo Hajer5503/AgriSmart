@@ -1,27 +1,8 @@
 import 'package:flutter/material.dart';
 import '../app/app_theme.dart';
+import '../services/task_service.dart';
+import '../services/api_service.dart';
 import 'dart:ui';
-
-// ─── Modèle local ───────────────────────────────────────────
-class _Task {
-  final String id;
-  String title;
-  String description;
-  bool done;
-  String priority; // high | medium | low
-  String dueDate;
-  String category;
-
-  _Task({
-    required this.id,
-    required this.title,
-    required this.description,
-    this.done = false,
-    required this.priority,
-    required this.dueDate,
-    required this.category,
-  });
-}
 
 // ─── Page ───────────────────────────────────────────────────
 class TasksPage extends StatefulWidget {
@@ -34,7 +15,9 @@ class TasksPage extends StatefulWidget {
 class _TasksPageState extends State<TasksPage>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
-  final List<_Task> _tasks = [];
+  final TaskService _service = TaskService();
+  List<Task> _tasks = [];
+  bool _isLoading = true;
 
   @override
   void initState() {
@@ -44,6 +27,7 @@ class _TasksPageState extends State<TasksPage>
       vsync: this,
     );
     _animationController.forward();
+    _loadTasks();
   }
 
   @override
@@ -52,11 +36,31 @@ class _TasksPageState extends State<TasksPage>
     super.dispose();
   }
 
-  void _toggleTask(_Task task) {
-    setState(() => task.done = !task.done);
+  Future<void> _loadTasks() async {
+    setState(() => _isLoading = true);
+    try {
+      final tasks = await _service.getTasks();
+      if (mounted) {
+        setState(() { _tasks = tasks; _isLoading = false; });
+      }
+    } catch (e) {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
-  void _deleteTask(_Task task) {
+  Future<void> _toggleTask(Task task) async {
+    try {
+      final updated = await _service.toggleTask(task.id);
+      if (mounted) {
+        setState(() {
+        final idx = _tasks.indexWhere((t) => t.id == updated.id);
+        if (idx >= 0) _tasks[idx] = updated;
+      });
+      }
+    } catch (_) {}
+  }
+
+  Future<void> _deleteTask(Task task) async {
     setState(() => _tasks.remove(task));
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -66,6 +70,11 @@ class _TasksPageState extends State<TasksPage>
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
     );
+    try {
+      await _service.deleteTask(task.id);
+    } catch (_) {
+      if (mounted) _loadTasks();
+    }
   }
 
   void _showAddTaskDialog() {
@@ -86,8 +95,7 @@ class _TasksPageState extends State<TasksPage>
       backgroundColor: Colors.transparent,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setModalState) => Padding(
-          padding: EdgeInsets.only(
-              bottom: MediaQuery.of(ctx).viewInsets.bottom),
+          padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
           child: Container(
             decoration: const BoxDecoration(
               color: Colors.white,
@@ -99,7 +107,6 @@ class _TasksPageState extends State<TasksPage>
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Poignée
                   Center(
                     child: Container(
                       width: 40, height: 4,
@@ -110,98 +117,62 @@ class _TasksPageState extends State<TasksPage>
                   ),
                   const SizedBox(height: 20),
                   const Text('Nouvelle tâche',
-                      style: TextStyle(
-                          fontSize: 22, fontWeight: FontWeight.w800)),
+                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
                   const SizedBox(height: 20),
-
-                  // Titre
                   TextField(
                     controller: titleCtrl,
                     decoration: InputDecoration(
                       labelText: 'Titre *',
                       prefixIcon: const Icon(Icons.title_rounded),
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12)),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                   ),
                   const SizedBox(height: 12),
-
-                  // Description
                   TextField(
                     controller: descCtrl,
                     maxLines: 2,
                     decoration: InputDecoration(
                       labelText: 'Description',
                       prefixIcon: const Icon(Icons.description_rounded),
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12)),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                   ),
                   const SizedBox(height: 16),
-
-                  // Priorité
                   const Text('Priorité',
-                      style: TextStyle(
-                          fontWeight: FontWeight.w600, fontSize: 14)),
+                      style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      _PriorityChip(
-                        label: 'Haute',
-                        value: 'high',
-                        color: Colors.red,
-                        selected: selectedPriority == 'high',
-                        onTap: () =>
-                            setModalState(() => selectedPriority = 'high'),
-                      ),
+                      _PriorityChip(label: 'Haute', value: 'high', color: Colors.red,
+                          selected: selectedPriority == 'high',
+                          onTap: () => setModalState(() => selectedPriority = 'high')),
                       const SizedBox(width: 8),
-                      _PriorityChip(
-                        label: 'Moyenne',
-                        value: 'medium',
-                        color: Colors.orange,
-                        selected: selectedPriority == 'medium',
-                        onTap: () =>
-                            setModalState(() => selectedPriority = 'medium'),
-                      ),
+                      _PriorityChip(label: 'Moyenne', value: 'medium', color: Colors.orange,
+                          selected: selectedPriority == 'medium',
+                          onTap: () => setModalState(() => selectedPriority = 'medium')),
                       const SizedBox(width: 8),
-                      _PriorityChip(
-                        label: 'Basse',
-                        value: 'low',
-                        color: Colors.green,
-                        selected: selectedPriority == 'low',
-                        onTap: () =>
-                            setModalState(() => selectedPriority = 'low'),
-                      ),
+                      _PriorityChip(label: 'Basse', value: 'low', color: Colors.green,
+                          selected: selectedPriority == 'low',
+                          onTap: () => setModalState(() => selectedPriority = 'low')),
                     ],
                   ),
                   const SizedBox(height: 16),
-
-                  // Catégorie
                   const Text('Catégorie',
-                      style: TextStyle(
-                          fontWeight: FontWeight.w600, fontSize: 14)),
+                      style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
                   const SizedBox(height: 8),
                   DropdownButtonFormField<String>(
-                    value: selectedCategory,
+                    initialValue: selectedCategory,
                     decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12)),
-                      contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 12),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     ),
-                    items: categories
-                        .map((c) => DropdownMenuItem(value: c, child: Text(c)))
-                        .toList(),
-                    onChanged: (v) =>
-                        setModalState(() => selectedCategory = v!),
+                    items: categories.map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
+                    onChanged: (v) => setModalState(() => selectedCategory = v!),
                   ),
                   const SizedBox(height: 16),
-
-                  // Date
                   ListTile(
                     contentPadding: EdgeInsets.zero,
-                    leading: const Icon(Icons.calendar_today_rounded,
-                        color: AppTheme.greenPrimary),
+                    leading: const Icon(Icons.calendar_today_rounded, color: AppTheme.greenPrimary),
                     title: Text(
                       'Date : ${selectedDate.day}/${selectedDate.month}/${selectedDate.year}',
                       style: const TextStyle(fontWeight: FontWeight.w600),
@@ -223,49 +194,43 @@ class _TasksPageState extends State<TasksPage>
                     ),
                   ),
                   const SizedBox(height: 24),
-
-                  // Bouton créer
                   FilledButton(
-                    onPressed: () {
+                    onPressed: () async {
                       if (titleCtrl.text.trim().isEmpty) return;
-                      final now = DateTime.now();
-                      final isToday = selectedDate.day == now.day &&
-                          selectedDate.month == now.month &&
-                          selectedDate.year == now.year;
-                      final isTomorrow = selectedDate.day == now.day + 1 &&
-                          selectedDate.month == now.month;
-
-                      setState(() {
-                        _tasks.add(_Task(
-                          id: DateTime.now().millisecondsSinceEpoch.toString(),
-                          title: titleCtrl.text.trim(),
-                          description: descCtrl.text.trim().isEmpty
-                              ? 'Aucune description'
-                              : descCtrl.text.trim(),
-                          priority: selectedPriority,
-                          dueDate: isToday
-                              ? "Aujourd'hui"
-                              : isTomorrow
-                                  ? 'Demain'
-                                  : '${selectedDate.day}/${selectedDate.month}',
-                          category: selectedCategory,
-                        ));
-                      });
                       Navigator.pop(ctx);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: const Text('✅ Tâche ajoutée !'),
-                          backgroundColor: AppTheme.greenPrimary,
+                      try {
+                        final due = '${selectedDate.year}-'
+                            '${selectedDate.month.toString().padLeft(2, '0')}-'
+                            '${selectedDate.day.toString().padLeft(2, '0')}';
+                        await _service.createTask(
+                          title: titleCtrl.text.trim(),
+                          description: descCtrl.text.trim(),
+                          priority: selectedPriority,
+                          category: selectedCategory,
+                          dueDate: due,
+                        );
+                        if (mounted) {
+                          _loadTasks();
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: const Text('Tâche ajoutée !'),
+                            backgroundColor: AppTheme.greenPrimary,
+                            behavior: SnackBarBehavior.floating,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ));
+                        }
+                      } catch (e) {
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: Text(ApiService.extractError(e)),
+                          backgroundColor: Colors.red,
                           behavior: SnackBarBehavior.floating,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12)),
-                        ),
-                      );
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ));
+                        }
+                      }
                     },
-                    style: FilledButton.styleFrom(
-                        minimumSize: const Size(double.infinity, 54)),
-                    child: const Text('Créer la tâche',
-                        style: TextStyle(fontSize: 16)),
+                    style: FilledButton.styleFrom(minimumSize: const Size(double.infinity, 54)),
+                    child: const Text('Créer la tâche', style: TextStyle(fontSize: 16)),
                   ),
                   const SizedBox(height: 8),
                 ],
@@ -287,87 +252,77 @@ class _TasksPageState extends State<TasksPage>
     return SafeArea(
       child: Stack(
         children: [
-          CustomScrollView(
-            slivers: [
-              // Header stats
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: _buildStatsHeader(
-                      pending.length, completed.length, progress),
-                ),
-              ),
-
-              // Section À faire
-              if (pending.isNotEmpty) ...[
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
-                    child: _SectionTitle(
-                        label: 'À faire', count: pending.length),
-                  ),
-                ),
-                SliverPadding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  sliver: SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, i) {
-                        final task = pending[i];
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 12),
-                          child: _TaskCard(
-                            task: task,
-                            onToggle: () => _toggleTask(task),
-                            onDelete: () => _deleteTask(task),
+          RefreshIndicator(
+            onRefresh: _loadTasks,
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : CustomScrollView(
+                    slivers: [
+                      SliverToBoxAdapter(
+                        child: Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: _buildStatsHeader(pending.length, completed.length, progress),
+                        ),
+                      ),
+                      if (pending.isNotEmpty) ...[
+                        SliverToBoxAdapter(
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+                            child: _SectionTitle(label: 'À faire', count: pending.length),
                           ),
-                        );
-                      },
-                      childCount: pending.length,
-                    ),
-                  ),
-                ),
-              ],
-
-              // Section Terminées
-              if (completed.isNotEmpty) ...[
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
-                    child: _SectionTitle(
-                        label: 'Terminées', count: completed.length,
-                        muted: true),
-                  ),
-                ),
-                SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 100),
-                  sliver: SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, i) {
-                        final task = completed[i];
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 12),
-                          child: _TaskCard(
-                            task: task,
-                            onToggle: () => _toggleTask(task),
-                            onDelete: () => _deleteTask(task),
+                        ),
+                        SliverPadding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          sliver: SliverList(
+                            delegate: SliverChildBuilderDelegate(
+                              (context, i) {
+                                final task = pending[i];
+                                return Padding(
+                                  padding: const EdgeInsets.only(bottom: 12),
+                                  child: _TaskCard(
+                                    task: task,
+                                    onToggle: () => _toggleTask(task),
+                                    onDelete: () => _deleteTask(task),
+                                  ),
+                                );
+                              },
+                              childCount: pending.length,
+                            ),
                           ),
-                        );
-                      },
-                      childCount: completed.length,
-                    ),
+                        ),
+                      ],
+                      if (completed.isNotEmpty) ...[
+                        SliverToBoxAdapter(
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
+                            child: _SectionTitle(label: 'Terminées', count: completed.length, muted: true),
+                          ),
+                        ),
+                        SliverPadding(
+                          padding: const EdgeInsets.fromLTRB(20, 0, 20, 100),
+                          sliver: SliverList(
+                            delegate: SliverChildBuilderDelegate(
+                              (context, i) {
+                                final task = completed[i];
+                                return Padding(
+                                  padding: const EdgeInsets.only(bottom: 12),
+                                  child: _TaskCard(
+                                    task: task,
+                                    onToggle: () => _toggleTask(task),
+                                    onDelete: () => _deleteTask(task),
+                                  ),
+                                );
+                              },
+                              childCount: completed.length,
+                            ),
+                          ),
+                        ),
+                      ],
+                      if (_tasks.isEmpty)
+                        SliverFillRemaining(child: _buildEmptyState()),
+                    ],
                   ),
-                ),
-              ],
-
-              // État vide
-              if (_tasks.isEmpty)
-                SliverFillRemaining(
-                  child: _buildEmptyState(),
-                ),
-            ],
           ),
-
-          // FAB ajout
           Positioned(
             right: 20,
             bottom: 20,
@@ -376,8 +331,7 @@ class _TasksPageState extends State<TasksPage>
               backgroundColor: AppTheme.greenPrimary,
               icon: const Icon(Icons.add_rounded, color: Colors.white),
               label: const Text('Ajouter',
-                  style: TextStyle(
-                      color: Colors.white, fontWeight: FontWeight.w600)),
+                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
             ),
           ),
         ],
@@ -439,14 +393,11 @@ class _TasksPageState extends State<TasksPage>
                       children: [
                         Text('$completed/${pending + completed}',
                             style: const TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w800,
-                                color: Colors.white)),
+                                fontSize: 20, fontWeight: FontWeight.w800, color: Colors.white)),
                         const SizedBox(height: 4),
                         Text('tâches',
                             style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.white.withValues(alpha: 0.8))),
+                                fontSize: 12, color: Colors.white.withValues(alpha: 0.8))),
                       ],
                     ),
                   ),
@@ -459,8 +410,7 @@ class _TasksPageState extends State<TasksPage>
                   value: progress,
                   minHeight: 10,
                   backgroundColor: Colors.white.withValues(alpha: 0.3),
-                  valueColor:
-                      const AlwaysStoppedAnimation<Color>(Colors.white),
+                  valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
                 ),
               ),
             ],
@@ -475,16 +425,12 @@ class _TasksPageState extends State<TasksPage>
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.task_alt_rounded,
-              size: 80,
-              color: AppTheme.greenPrimary.withValues(alpha: 0.3)),
+          Icon(Icons.task_alt_rounded, size: 80, color: AppTheme.greenPrimary.withValues(alpha: 0.3)),
           const SizedBox(height: 16),
-          const Text('Aucune tâche',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
+          const Text('Aucune tâche', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
           const SizedBox(height: 8),
           Text('Appuyez sur "Ajouter" pour créer votre première tâche',
-              style: TextStyle(color: Colors.grey.shade500),
-              textAlign: TextAlign.center),
+              style: TextStyle(color: Colors.grey.shade500), textAlign: TextAlign.center),
         ],
       ),
     );
@@ -493,12 +439,27 @@ class _TasksPageState extends State<TasksPage>
 
 // ─── Widgets internes ────────────────────────────────────────
 
+String _formatDueDate(String? dueDate) {
+  if (dueDate == null || dueDate.isEmpty) return 'Sans date';
+  try {
+    final dt = DateTime.parse(dueDate);
+    final today = DateTime.now();
+    final diff = DateTime(dt.year, dt.month, dt.day)
+        .difference(DateTime(today.year, today.month, today.day))
+        .inDays;
+    if (diff == 0) return "Aujourd'hui";
+    if (diff == 1) return 'Demain';
+    return '${dt.day}/${dt.month}';
+  } catch (_) {
+    return dueDate;
+  }
+}
+
 class _SectionTitle extends StatelessWidget {
   final String label;
   final int count;
   final bool muted;
-  const _SectionTitle(
-      {required this.label, required this.count, this.muted = false});
+  const _SectionTitle({required this.label, required this.count, this.muted = false});
 
   @override
   Widget build(BuildContext context) {
@@ -508,9 +469,7 @@ class _SectionTitle extends StatelessWidget {
             style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
-                color: muted
-                    ? AppTheme.greenDark.withValues(alpha: 0.5)
-                    : AppTheme.greenDark)),
+                color: muted ? AppTheme.greenDark.withValues(alpha: 0.5) : AppTheme.greenDark)),
         const SizedBox(width: 8),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
@@ -524,9 +483,7 @@ class _SectionTitle extends StatelessWidget {
               style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
-                  color: muted
-                      ? Colors.black.withValues(alpha: 0.4)
-                      : AppTheme.greenPrimary)),
+                  color: muted ? Colors.black.withValues(alpha: 0.4) : AppTheme.greenPrimary)),
         ),
       ],
     );
@@ -540,11 +497,8 @@ class _PriorityChip extends StatelessWidget {
   final bool selected;
   final VoidCallback onTap;
   const _PriorityChip(
-      {required this.label,
-      required this.value,
-      required this.color,
-      required this.selected,
-      required this.onTap});
+      {required this.label, required this.value, required this.color,
+       required this.selected, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -573,22 +527,19 @@ LinearGradient _gradientForPriority(String priority) {
     case 'high':
       return const LinearGradient(
           colors: [Color(0xFFFF3B30), Color(0xFFFF6B6B)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight);
+          begin: Alignment.topLeft, end: Alignment.bottomRight);
     case 'medium':
       return const LinearGradient(
           colors: [Color(0xFFFF9500), Color(0xFFFEE140)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight);
+          begin: Alignment.topLeft, end: Alignment.bottomRight);
     default:
       return const LinearGradient(
           colors: [Color(0xFF34C759), Color(0xFF30D158)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight);
+          begin: Alignment.topLeft, end: Alignment.bottomRight);
   }
 }
 
-IconData _iconForCategory(String category) {
+IconData _iconForCategory(String? category) {
   switch (category) {
     case 'Irrigation': return Icons.water_drop_rounded;
     case 'Traitement': return Icons.pest_control_rounded;
@@ -601,14 +552,11 @@ IconData _iconForCategory(String category) {
 }
 
 class _TaskCard extends StatelessWidget {
-  final _Task task;
+  final Task task;
   final VoidCallback onToggle;
   final VoidCallback onDelete;
 
-  const _TaskCard(
-      {required this.task,
-      required this.onToggle,
-      required this.onDelete});
+  const _TaskCard({required this.task, required this.onToggle, required this.onDelete});
 
   @override
   Widget build(BuildContext context) {
@@ -616,15 +564,12 @@ class _TaskCard extends StatelessWidget {
     final icon = _iconForCategory(task.category);
 
     return Dismissible(
-      key: Key(task.id),
+      key: Key(task.id.toString()),
       direction: DismissDirection.endToStart,
       background: Container(
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.only(right: 20),
-        decoration: BoxDecoration(
-          color: Colors.red,
-          borderRadius: BorderRadius.circular(20),
-        ),
+        decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(20)),
         child: const Icon(Icons.delete_rounded, color: Colors.white, size: 28),
       ),
       onDismissed: (_) => onDelete(),
@@ -637,26 +582,20 @@ class _TaskCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(20),
             boxShadow: task.done
                 ? null
-                : [
-                    BoxShadow(
-                        color: gradient.colors.first.withValues(alpha: 0.15),
-                        blurRadius: 16,
-                        offset: const Offset(0, 6))
-                  ],
+                : [BoxShadow(
+                    color: gradient.colors.first.withValues(alpha: 0.15),
+                    blurRadius: 16, offset: const Offset(0, 6))],
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(20),
             child: Row(
               children: [
-                // Bande colorée + icône
                 Container(
                   width: 64,
                   padding: const EdgeInsets.symmetric(vertical: 20),
                   decoration: BoxDecoration(
                     gradient: task.done ? null : gradient,
-                    color: task.done
-                        ? Colors.grey.shade200
-                        : null,
+                    color: task.done ? Colors.grey.shade200 : null,
                     borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(20),
                       bottomLeft: Radius.circular(20),
@@ -665,49 +604,37 @@ class _TaskCard extends StatelessWidget {
                   child: GestureDetector(
                     onTap: onToggle,
                     child: Icon(
-                      task.done
-                          ? Icons.check_circle_rounded
-                          : icon,
-                      color: Colors.white,
-                      size: 28,
+                      task.done ? Icons.check_circle_rounded : icon,
+                      color: Colors.white, size: 28,
                     ),
                   ),
                 ),
-
-                // Contenu
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.all(14),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          task.title,
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                            color: const Color(0xFF1C1C1E),
-                            decoration: task.done
-                                ? TextDecoration.lineThrough
-                                : null,
-                          ),
-                        ),
+                        Text(task.title,
+                            style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                                color: const Color(0xFF1C1C1E),
+                                decoration: task.done ? TextDecoration.lineThrough : null)),
                         const SizedBox(height: 4),
-                        Text(task.description,
-                            style: const TextStyle(
-                                fontSize: 13, color: Colors.grey),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis),
+                        Text(task.description.isEmpty ? 'Aucune description' : task.description,
+                            style: const TextStyle(fontSize: 13, color: Colors.grey),
+                            maxLines: 1, overflow: TextOverflow.ellipsis),
                         const SizedBox(height: 8),
                         Row(
                           children: [
                             _InfoTag(
                                 icon: Icons.calendar_today_rounded,
-                                label: task.dueDate,
+                                label: _formatDueDate(task.dueDate),
                                 color: gradient.colors.first),
                             const SizedBox(width: 8),
                             _InfoTag(
-                                label: task.category,
+                                label: task.category ?? 'Autre',
                                 color: Colors.grey.shade600),
                           ],
                         ),
@@ -715,8 +642,6 @@ class _TaskCard extends StatelessWidget {
                     ),
                   ),
                 ),
-
-                // Checkbox à droite
                 Padding(
                   padding: const EdgeInsets.only(right: 12),
                   child: GestureDetector(
@@ -725,9 +650,7 @@ class _TaskCard extends StatelessWidget {
                       task.done
                           ? Icons.check_circle_rounded
                           : Icons.radio_button_unchecked_rounded,
-                      color: task.done
-                          ? AppTheme.greenPrimary
-                          : Colors.grey.shade400,
+                      color: task.done ? AppTheme.greenPrimary : Colors.grey.shade400,
                       size: 28,
                     ),
                   ),
@@ -763,10 +686,7 @@ class _InfoTag extends StatelessWidget {
             const SizedBox(width: 4),
           ],
           Text(label,
-              style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: color)),
+              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: color)),
         ],
       ),
     );
