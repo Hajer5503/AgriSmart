@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+  AgriSmart — Android Manifest Permissions
+  ==========================================
+  Add these permissions to your android/app/src/main/AndroidManifest.xml
+  inside the <manifest> tag, BEFORE the <application> tag.
+-->
+
+<!-- REQUIRED: Camera access -->
+<uses-permission android:name="android.permission.CAMERA" />
+
+<!-- REQUIRED: Read storage (for saving/loading images) -->
+<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+<!-- Camera hardware feature -->
+<uses-feature android:name="android.hardware.camera" android:required="true" />
+
+<!--
+  Also add inside <application> tag:
+  android:requestLegacyExternalStorage="true"
+  
+  Example:
+  <application
+      android:label="agrismart"
+      android:requestLegacyExternalStorage="true"
+      ...>
+-->
