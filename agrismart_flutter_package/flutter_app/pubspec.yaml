@@ -1,0 +1,33 @@
+name: agrismart
+description: AgriSmart — Plant Disease Detection (Offline, On-Device)
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Camera
+  camera: ^0.10.5+9
+
+  # TFLite inference
+  tflite_flutter: 0.12.1
+
+  # Image processing
+  image: ^4.1.7
+
+  # Path utilities
+  path_provider: ^2.1.2
+
+  # Icons
+  cupertino_icons: ^1.0.6
+
+flutter:
+  uses-material-design: true
+
+  assets:
+  - assets/agrismart_disease.tflite
+  - assets/class_names.json
