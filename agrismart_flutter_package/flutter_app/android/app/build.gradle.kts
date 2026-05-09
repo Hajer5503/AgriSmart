@@ -8,7 +8,9 @@ plugins {
 android {
     namespace = "com.example.agrismart"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    // whisper_ggml ships native binaries built with NDK r29; everyone else is
+    // happy with r27. NDK is backward-compatible so we pin to the highest.
+    ndkVersion = "29.0.13113456"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -20,14 +22,27 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.example.agrismart"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
+        // llama_flutter_android requires API 26+; camera + tflite_flutter only need 21.
+        // We pin to 26 to satisfy the strictest dependency.
+        minSdk = 26
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+
+        // Restrict native ABIs to ARM64 + x86_64. armeabi-v7a is dropped because
+        // tflite_flutter's full asset and llama.cpp prefer 64-bit, and 32-bit
+        // builds on Android 16 are flaky for large mmap'd model files.
+        ndk {
+            abiFilters += listOf("arm64-v8a", "x86_64")
+        }
+    }
+
+    // The bundled .gguf and .tflite assets are already compressed and would only
+    // grow if APK packaging tries to compress them again. Keep them flat so they
+    // can be mmap'd directly from the APK.
+    androidResources {
+        noCompress += listOf("tflite", "gguf")
     }
 
     buildTypes {

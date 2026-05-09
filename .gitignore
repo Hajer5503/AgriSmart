@@ -1,1 +1,7 @@
 data/crop_disease/Raw/
+
+# Local / sideload ML weights (not versioned; use ModelDownloader or adb push)
+qwen-agri.gguf
+ggml-*.bin
+best_model.pth
+agrismart_flutter_package/reconverted/
