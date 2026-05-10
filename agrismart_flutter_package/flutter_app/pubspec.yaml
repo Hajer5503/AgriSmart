@@ -1,0 +1,55 @@
+name: agrismart
+description: AgriSmart — Plant Disease Detection + Arabic Voice Assistant (Offline, On-Device)
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Camera
+  camera: ^0.10.5+9
+
+  # TFLite inference (disease detection)
+  tflite_flutter: 0.12.1
+
+  # On-device GGUF / llama.cpp inference for the Arabic voice assistant
+  llama_flutter_android: ^0.2.3
+
+  # Offline speech-to-text via whisper.cpp (works on every Android phone,
+  # no language-pack install required).
+  whisper_ggml: ^1.7.0
+
+  # Audio recorder used to feed Whisper with a .m4a file.
+  record: ^6.0.0
+
+  # Kept as fallback when the user has the native Arabic STT pack installed.
+  speech_to_text: ^7.0.0
+
+  # Native Android TTS (Arabic offline voice already installed on the test device).
+  flutter_tts: ^4.2.0
+
+  # Microphone permission
+  permission_handler: ^11.3.1
+
+  # HTTP for the first-launch model download
+  http: ^1.2.2
+
+  # Image processing
+  image: ^4.1.7
+
+  # Path utilities
+  path_provider: ^2.1.2
+
+  # Icons
+  cupertino_icons: ^1.0.6
+
+flutter:
+  uses-material-design: true
+
+  assets:
+  - assets/agrismart_disease.tflite
+  - assets/class_names.json

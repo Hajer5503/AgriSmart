@@ -99,13 +99,19 @@ class AuthService extends ChangeNotifier {
   User? _currentUser;
   User? get currentUser => _currentUser;
 
+  static String _readToken(dynamic raw) {
+    if (raw is String && raw.isNotEmpty) return raw;
+    if (raw != null) return raw.toString();
+    throw StateError('Réponse API : token manquant');
+  }
+
   Future<User> login(String email, String password) async {
     final response = await _apiService.post('/auth/login', data: {
       'email': email,
       'password': password,
     });
 
-    final token = response.data['token'] as String;
+    final token = _readToken(response.data['token']);
     final userData = response.data['user'];
 
     await _storage.write(key: 'auth_token', value: token);
@@ -129,7 +135,7 @@ class AuthService extends ChangeNotifier {
       'phone': phone,
     });
 
-    final token = response.data['token'] as String;
+    final token = _readToken(response.data['token']);
     final userData = response.data['user'];
 
     await _storage.write(key: 'auth_token', value: token);

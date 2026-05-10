@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/user.dart';
 import '../services/auth_service.dart';
+import '../services/api_service.dart';
 import '../services/database_service.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -54,8 +55,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
         phone: _phoneController.text.trim(),
       );
 
-      // Sauvegarde locale
-      await DatabaseService.instance.createUser(newUser);
+      try {
+        await DatabaseService.instance.createUser(newUser);
+      } catch (e, st) {
+        debugPrint('Cache SQLite utilisateur : $e\n$st');
+      }
 
       if (mounted) {
         Navigator.pushReplacementNamed(context, '/home');
@@ -63,7 +67,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Erreur: ${e.toString()}")),
+          SnackBar(content: Text(ApiService.extractError(e))),
         );
       }
     } finally {

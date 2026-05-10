@@ -69,7 +69,11 @@ class DatabaseService {
   // User CRUD operations
   Future<int> createUser(User user) async {
     final db = await database;
-    return await db.insert('users', user.toJson());
+    return await db.insert(
+      'users',
+      user.toJson(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
   }
 
   Future<User?> getUser(int id) async {

@@ -27,13 +27,29 @@ class User {
   }
 
   factory User.fromJson(Map<String, dynamic> json) {
+    final raw = json['created_at'];
+    DateTime created;
+    if (raw == null) {
+      created = DateTime.now();
+    } else if (raw is DateTime) {
+      created = raw;
+    } else {
+      created = DateTime.tryParse(raw.toString()) ?? DateTime.now();
+    }
+    final rawId = json['id'];
+    int? id;
+    if (rawId is int) {
+      id = rawId;
+    } else if (rawId is num) {
+      id = rawId.toInt();
+    }
     return User(
-      id: json['id'],
-      email: json['email'],
-      name: json['name'],
-      role: json['role'],
-      phone: json['phone'],
-      createdAt: DateTime.parse(json['created_at']),
+      id: id,
+      email: json['email']?.toString() ?? '',
+      name: json['name']?.toString() ?? '',
+      role: json['role']?.toString() ?? 'farmer',
+      phone: json['phone']?.toString(),
+      createdAt: created,
     );
   }
 }

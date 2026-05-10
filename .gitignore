@@ -43,3 +43,17 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Node backend (agrismart_backend)
+node_modules/
+.env
+npm-debug.log*
+
+# Monorepo / Python
+data/crop_disease/Raw/
+
+# Local / sideload ML weights (not versioned; use ModelDownloader or adb push)
+qwen-agri.gguf
+ggml-*.bin
+best_model.pth
+agrismart_flutter_package/reconverted/

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../app/app_theme.dart';
 import '../services/task_service.dart';
 import '../services/api_service.dart';
-import 'dart:ui';
 
 // ─── Page ───────────────────────────────────────────────────
 class TasksPage extends StatefulWidget {
@@ -260,25 +259,25 @@ class _TasksPageState extends State<TasksPage>
                     slivers: [
                       SliverToBoxAdapter(
                         child: Padding(
-                          padding: const EdgeInsets.all(20),
+                          padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
                           child: _buildStatsHeader(pending.length, completed.length, progress),
                         ),
                       ),
                       if (pending.isNotEmpty) ...[
                         SliverToBoxAdapter(
                           child: Padding(
-                            padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+                            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
                             child: _SectionTitle(label: 'À faire', count: pending.length),
                           ),
                         ),
                         SliverPadding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
                           sliver: SliverList(
                             delegate: SliverChildBuilderDelegate(
                               (context, i) {
                                 final task = pending[i];
                                 return Padding(
-                                  padding: const EdgeInsets.only(bottom: 12),
+                                  padding: const EdgeInsets.only(bottom: 10),
                                   child: _TaskCard(
                                     task: task,
                                     onToggle: () => _toggleTask(task),
@@ -294,18 +293,18 @@ class _TasksPageState extends State<TasksPage>
                       if (completed.isNotEmpty) ...[
                         SliverToBoxAdapter(
                           child: Padding(
-                            padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
+                            padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
                             child: _SectionTitle(label: 'Terminées', count: completed.length, muted: true),
                           ),
                         ),
                         SliverPadding(
-                          padding: const EdgeInsets.fromLTRB(20, 0, 20, 100),
+                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 80),
                           sliver: SliverList(
                             delegate: SliverChildBuilderDelegate(
                               (context, i) {
                                 final task = completed[i];
                                 return Padding(
-                                  padding: const EdgeInsets.only(bottom: 12),
+                                  padding: const EdgeInsets.only(bottom: 10),
                                   child: _TaskCard(
                                     task: task,
                                     onToggle: () => _toggleTask(task),
@@ -324,14 +323,17 @@ class _TasksPageState extends State<TasksPage>
                   ),
           ),
           Positioned(
-            right: 20,
-            bottom: 20,
-            child: FloatingActionButton.extended(
-              onPressed: _showAddTaskDialog,
-              backgroundColor: AppTheme.greenPrimary,
-              icon: const Icon(Icons.add_rounded, color: Colors.white),
-              label: const Text('Ajouter',
-                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+            left: 0,
+            right: 0,
+            bottom: 16,
+            child: Center(
+              child: FloatingActionButton(
+                heroTag: 'tasks_fab_add',
+                tooltip: 'Nouvelle tâche',
+                onPressed: _showAddTaskDialog,
+                backgroundColor: AppTheme.greenPrimary,
+                child: const Icon(Icons.add_rounded, color: Colors.white),
+              ),
             ),
           ),
         ],
@@ -340,82 +342,85 @@ class _TasksPageState extends State<TasksPage>
   }
 
   Widget _buildStatsHeader(int pending, int completed, double progress) {
+    final total = pending + completed;
+    final pct = total > 0 ? (progress * 100).round() : 0;
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           colors: [Color(0xFF11998E), Color(0xFF38EF7D)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
-              color: const Color(0xFF11998E).withValues(alpha: 0.3),
-              blurRadius: 20,
-              offset: const Offset(0, 10)),
+            color: const Color(0xFF11998E).withValues(alpha: 0.22),
+            blurRadius: 14,
+            offset: const Offset(0, 6),
+          ),
         ],
       ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(24),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: Column(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
             children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Progression',
-                            style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white.withValues(alpha: 0.9))),
-                        const SizedBox(height: 8),
-                        Text('${(progress * 100).toInt()}%',
-                            style: const TextStyle(
-                                fontSize: 36,
-                                fontWeight: FontWeight.w800,
-                                color: Colors.white,
-                                letterSpacing: -1.0)),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Column(
-                      children: [
-                        Text('$completed/${pending + completed}',
-                            style: const TextStyle(
-                                fontSize: 20, fontWeight: FontWeight.w800, color: Colors.white)),
-                        const SizedBox(height: 4),
-                        Text('tâches',
-                            style: TextStyle(
-                                fontSize: 12, color: Colors.white.withValues(alpha: 0.8))),
-                      ],
-                    ),
-                  ),
-                ],
+              Icon(
+                Icons.show_chart_rounded,
+                color: Colors.white.withValues(alpha: 0.9),
+                size: 20,
               ),
-              const SizedBox(height: 16),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: LinearProgressIndicator(
-                  value: progress,
-                  minHeight: 10,
-                  backgroundColor: Colors.white.withValues(alpha: 0.3),
-                  valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+              const SizedBox(width: 8),
+              Text(
+                'Progression',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white.withValues(alpha: 0.92),
                 ),
               ),
+              const Spacer(),
+              Text(
+                total == 0 ? '—' : '$pct%',
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.white,
+                  letterSpacing: -0.5,
+                ),
+              ),
+              if (total > 0) ...[
+                const SizedBox(width: 10),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(
+                    '$completed / $total',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white.withValues(alpha: 0.95),
+                    ),
+                  ),
+                ),
+              ],
             ],
           ),
-        ),
+          const SizedBox(height: 10),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(6),
+            child: LinearProgressIndicator(
+              value: total == 0 ? 0 : progress,
+              minHeight: 5,
+              backgroundColor: Colors.white.withValues(alpha: 0.28),
+              valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -429,7 +434,7 @@ class _TasksPageState extends State<TasksPage>
           const SizedBox(height: 16),
           const Text('Aucune tâche', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
           const SizedBox(height: 8),
-          Text('Appuyez sur "Ajouter" pour créer votre première tâche',
+          Text('Touchez le bouton + pour créer une tâche',
               style: TextStyle(color: Colors.grey.shade500), textAlign: TextAlign.center),
         ],
       ),
@@ -465,25 +470,34 @@ class _SectionTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Text(label,
-            style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                color: muted ? AppTheme.greenDark.withValues(alpha: 0.5) : AppTheme.greenDark)),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w700,
+            letterSpacing: -0.2,
+            color: muted ? AppTheme.greenDark.withValues(alpha: 0.45) : AppTheme.greenDark,
+          ),
+        ),
         const SizedBox(width: 8),
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+          width: 22,
+          height: 22,
+          alignment: Alignment.center,
           decoration: BoxDecoration(
             color: muted
                 ? Colors.black.withValues(alpha: 0.05)
-                : AppTheme.greenPrimary.withValues(alpha: 0.15),
-            borderRadius: BorderRadius.circular(10),
+                : AppTheme.greenPrimary.withValues(alpha: 0.12),
+            shape: BoxShape.circle,
           ),
-          child: Text('$count',
-              style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  color: muted ? Colors.black.withValues(alpha: 0.4) : AppTheme.greenPrimary)),
+          child: Text(
+            '$count',
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w800,
+              color: muted ? Colors.black.withValues(alpha: 0.38) : AppTheme.greenPrimary,
+            ),
+          ),
         ),
       ],
     );
@@ -562,6 +576,7 @@ class _TaskCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final gradient = _gradientForPriority(task.priority);
     final icon = _iconForCategory(task.category);
+    final accent = gradient.colors.first;
 
     return Dismissible(
       key: Key(task.id.toString()),
@@ -569,89 +584,90 @@ class _TaskCard extends StatelessWidget {
       background: Container(
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.only(right: 20),
-        decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(20)),
-        child: const Icon(Icons.delete_rounded, color: Colors.white, size: 28),
+        decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(16)),
+        child: const Icon(Icons.delete_rounded, color: Colors.white, size: 26),
       ),
       onDismissed: (_) => onDelete(),
       child: AnimatedOpacity(
-        opacity: task.done ? 0.55 : 1.0,
+        opacity: task.done ? 0.52 : 1.0,
         duration: const Duration(milliseconds: 200),
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: task.done
-                ? null
-                : [BoxShadow(
-                    color: gradient.colors.first.withValues(alpha: 0.15),
-                    blurRadius: 16, offset: const Offset(0, 6))],
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(20),
+        child: Material(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          clipBehavior: Clip.antiAlias,
+          elevation: task.done ? 0 : 1.5,
+          shadowColor: accent.withValues(alpha: 0.12),
+          child: InkWell(
+            onTap: onToggle,
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  width: 64,
-                  padding: const EdgeInsets.symmetric(vertical: 20),
-                  decoration: BoxDecoration(
-                    gradient: task.done ? null : gradient,
-                    color: task.done ? Colors.grey.shade200 : null,
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(20),
-                      bottomLeft: Radius.circular(20),
-                    ),
-                  ),
-                  child: GestureDetector(
-                    onTap: onToggle,
-                    child: Icon(
-                      task.done ? Icons.check_circle_rounded : icon,
-                      color: Colors.white, size: 28,
-                    ),
-                  ),
+                  width: 4,
+                  constraints: const BoxConstraints(minHeight: 72),
+                  color: task.done ? Colors.grey.shade300 : accent,
                 ),
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.all(14),
+                    padding: const EdgeInsets.fromLTRB(12, 12, 14, 12),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(task.title,
-                            style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w700,
-                                color: const Color(0xFF1C1C1E),
-                                decoration: task.done ? TextDecoration.lineThrough : null)),
-                        const SizedBox(height: 4),
-                        Text(task.description.isEmpty ? 'Aucune description' : task.description,
-                            style: const TextStyle(fontSize: 13, color: Colors.grey),
-                            maxLines: 1, overflow: TextOverflow.ellipsis),
-                        const SizedBox(height: 8),
                         Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _InfoTag(
-                                icon: Icons.calendar_today_rounded,
-                                label: _formatDueDate(task.dueDate),
-                                color: gradient.colors.first),
-                            const SizedBox(width: 8),
-                            _InfoTag(
-                                label: task.category ?? 'Autre',
-                                color: Colors.grey.shade600),
+                            Icon(
+                              icon,
+                              size: 22,
+                              color: task.done ? Colors.grey.shade500 : accent,
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                task.title,
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w700,
+                                  height: 1.25,
+                                  color: const Color(0xFF1C1C1E),
+                                  decoration: task.done ? TextDecoration.lineThrough : null,
+                                  decorationColor: Colors.grey.shade500,
+                                ),
+                              ),
+                            ),
                           ],
                         ),
+                        if (task.description.isNotEmpty) ...[
+                          const SizedBox(height: 4),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 32),
+                            child: Text(
+                              task.description,
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Colors.grey.shade600,
+                                height: 1.2,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                        const SizedBox(height: 8),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 32),
+                          child: Text(
+                            '${_formatDueDate(task.dueDate)} · ${task.category ?? 'Autre'}',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              color: task.done ? Colors.grey.shade500 : Colors.grey.shade600,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
                       ],
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(right: 12),
-                  child: GestureDetector(
-                    onTap: onToggle,
-                    child: Icon(
-                      task.done
-                          ? Icons.check_circle_rounded
-                          : Icons.radio_button_unchecked_rounded,
-                      color: task.done ? AppTheme.greenPrimary : Colors.grey.shade400,
-                      size: 28,
                     ),
                   ),
                 ),
@@ -659,35 +675,6 @@ class _TaskCard extends StatelessWidget {
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _InfoTag extends StatelessWidget {
-  final IconData? icon;
-  final String label;
-  final Color color;
-  const _InfoTag({this.icon, required this.label, required this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (icon != null) ...[
-            Icon(icon, size: 11, color: color),
-            const SizedBox(width: 4),
-          ],
-          Text(label,
-              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: color)),
-        ],
       ),
     );
   }

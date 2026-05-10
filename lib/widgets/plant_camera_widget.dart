@@ -1,17 +1,20 @@
-import 'dart:io';
-import 'dart:ui';
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
-import '../services/plant_analysis_service.dart';
-import '../models/plant_analysis.dart';
+import '../features/offline_disease/offline_leaf_scan.dart';
 
 class PlantCameraWidget extends StatefulWidget {
   final int userId;
+  final List<CameraDescription> cameras;
+  /// Si true : bouton compact style AppBar (verre), sinon FAB vert classique.
+  final bool appBarStyle;
 
   const PlantCameraWidget({
     super.key,
     required this.userId,
+    required this.cameras,
+    this.appBarStyle = false,
   });
 
   @override
@@ -20,15 +23,20 @@ class PlantCameraWidget extends StatefulWidget {
 
 class _PlantCameraWidgetState extends State<PlantCameraWidget> {
   final ImagePicker _picker = ImagePicker();
-  final PlantAnalysisService _analysisService = PlantAnalysisService();
-  
-  File? _selectedImage;
-  PlantAnalysis? _analysis;
-  bool _isAnalyzing = false;
 
   Future<void> _requestPermissions() async {
     await Permission.camera.request();
     await Permission.photos.request();
+  }
+
+  /// Analyse maladie **hors ligne (TFLite)** sur l’image choisie.
+  Future<void> _openOfflineResult(String imagePath) async {
+    if (!mounted) return;
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute<void>(
+        builder: (_) => OfflineLeafResultScreen(imagePath: imagePath),
+      ),
+    );
   }
 
   Future<void> _takePicture() async {
@@ -39,16 +47,12 @@ class _PlantCameraWidgetState extends State<PlantCameraWidget> {
         source: ImageSource.camera,
         imageQuality: 85,
       );
-
-      if (photo != null) {
-        setState(() {
-          _selectedImage = File(photo.path);
-          _analysis = null;
-        });
-        await _analyzeImage(photo.path);
-      }
+      if (!mounted) return;
+      if (photo != null) await _openOfflineResult(photo.path);
     } catch (e) {
-      _showError('Erreur de capture: ${e.toString()}');
+      if (mounted) {
+        _showError('Erreur de capture: ${e.toString()}');
+      }
     }
   }
 
@@ -60,39 +64,12 @@ class _PlantCameraWidgetState extends State<PlantCameraWidget> {
         source: ImageSource.gallery,
         imageQuality: 85,
       );
-
-      if (image != null) {
-        setState(() {
-          _selectedImage = File(image.path);
-          _analysis = null;
-        });
-        await _analyzeImage(image.path);
+      if (!mounted) return;
+      if (image != null) await _openOfflineResult(image.path);
+    } catch (e) {
+      if (mounted) {
+        _showError('Erreur de sélection: ${e.toString()}');
       }
-    } catch (e) {
-      _showError('Erreur de sélection: ${e.toString()}');
-    }
-  }
-
-  Future<void> _analyzeImage(String imagePath) async {
-    setState(() {
-      _isAnalyzing = true;
-    });
-
-    try {
-      final analysis = await _analysisService.analyzePlant(
-        imagePath,
-        widget.userId,
-      );
-
-      setState(() {
-        _analysis = analysis;
-      });
-    } catch (e) {
-      _showError('Erreur d\'analyse: ${e.toString()}');
-    } finally {
-      setState(() {
-        _isAnalyzing = false;
-      });
     }
   }
 
@@ -115,6 +92,13 @@ class _PlantCameraWidgetState extends State<PlantCameraWidget> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.appBarStyle) {
+      return IconButton(
+        icon: const Icon(Icons.camera_alt_rounded),
+        tooltip: 'Analyser une plante',
+        onPressed: _showOptions,
+      );
+    }
     return FloatingActionButton(
       onPressed: _showOptions,
       backgroundColor: const Color(0xFF34C759),
@@ -151,7 +135,7 @@ class _PlantCameraWidgetState extends State<PlantCameraWidget> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Prenez une photo ou sélectionnez depuis la galerie',
+              'Caméra ou galerie — détection de maladie hors ligne (TFLite)',
               style: TextStyle(
                 fontSize: 14,
                 color: Colors.grey[600],
@@ -225,155 +209,6 @@ class _PlantCameraWidgetState extends State<PlantCameraWidget> {
           ],
         ),
       ),
-    );
-  }
-}
-
-// Widget pour afficher les résultats d'analyse
-class PlantAnalysisResultWidget extends StatelessWidget {
-  final PlantAnalysis analysis;
-  final File image;
-
-  const PlantAnalysisResultWidget({
-    super.key,
-    required this.analysis,
-    required this.image,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(24),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.9),
-              borderRadius: BorderRadius.circular(24),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(16),
-                  child: Image.file(
-                    image,
-                    height: 200,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                const Text(
-                  'Résultat de l\'analyse',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                if (analysis.diagnosis != null) ...[
-                  _buildInfoRow(
-                    icon: Icons.local_hospital_rounded,
-                    label: 'Diagnostic',
-                    value: analysis.diagnosis!,
-                  ),
-                  const SizedBox(height: 8),
-                ],
-                if (analysis.confidence != null) ...[
-                  _buildInfoRow(
-                    icon: Icons.percent_rounded,
-                    label: 'Confiance',
-                    value: '${(analysis.confidence! * 100).toStringAsFixed(1)}%',
-                  ),
-                  const SizedBox(height: 8),
-                ],
-                if (analysis.recommendations != null) ...[
-                  const SizedBox(height: 8),
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF34C759).withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Row(
-                          children: [
-                            Icon(
-                              Icons.lightbulb_rounded,
-                              color: Color(0xFF34C759),
-                              size: 20,
-                            ),
-                            SizedBox(width: 8),
-                            Text(
-                              'Recommandations',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          analysis.recommendations!,
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey[700],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildInfoRow({
-    required IconData icon,
-    required String label,
-    required String value,
-  }) {
-    return Row(
-      children: [
-        Icon(icon, size: 20, color: const Color(0xFF34C759)),
-        const SizedBox(width: 8),
-        Text(
-          '$label: ',
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        Expanded(
-          child: Text(
-            value,
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[700],
-            ),
-          ),
-        ),
-      ],
     );
   }
 }

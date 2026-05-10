@@ -3,8 +3,16 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class ApiService {
-  static const String baseUrl = /*'http://10.0.2.2:3000/api'*/'https://grand-wonder-production-6ef6.up.railway.app/api'; // À remplacer
-  
+  /// - Release: Railway (HTTPS). Override with `--dart-define=API_BASE_URL=...`.
+  /// - Debug sans define: émulateur Android → `http://10.0.2.2:3000/api`.
+  /// - Téléphone sur le Wi‑Fi: `flutter run --dart-define=API_BASE_URL=http://VOTRE_IP_PC:3000/api`
+  static String get baseUrl {
+    const fromEnv = String.fromEnvironment('API_BASE_URL');
+    if (fromEnv.isNotEmpty) return fromEnv;
+    if (kDebugMode) return 'http://10.0.2.2:3000/api';
+    return 'https://grand-wonder-production-6ef6.up.railway.app/api';
+  }
+
   final Dio _dio;
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
@@ -59,7 +67,9 @@ class ApiService {
       final body = e.response?.data;
       if (body is Map) {
         final debug = body['debug']?.toString();
+        final detail = body['detail']?.toString();
         final msg   = body['message']?.toString();
+        if (detail != null && detail.isNotEmpty) return 'Erreur serveur : $detail';
         if (debug != null && debug.isNotEmpty) return 'Erreur serveur : $debug';
         if (msg   != null && msg.isNotEmpty)   return msg;
       }

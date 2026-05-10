@@ -1,6 +1,8 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import '../app/app_theme.dart';
 import '../services/chatbot_service.dart';
+import '../voice/voice_chat_screen.dart';
 
 // ─── Modèle message ──────────────────────────────────────
 class _Msg {
@@ -20,12 +22,13 @@ class ChatbotWidget extends StatefulWidget {
 }
 
 class _ChatbotWidgetState extends State<ChatbotWidget>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
       
   final _textCtrl = TextEditingController();
   final ChatbotService _chatbotService = ChatbotService();
   final _scrollCtrl = ScrollController();
   late AnimationController _animCtrl;
+  late AnimationController _pulseCtrl;
   bool _isOpen = false;
   bool _isLoading = false;
 
@@ -51,11 +54,16 @@ class _ChatbotWidgetState extends State<ChatbotWidget>
     super.initState();
     _animCtrl = AnimationController(
         duration: const Duration(milliseconds: 300), vsync: this);
+    _pulseCtrl = AnimationController(
+      duration: const Duration(milliseconds: 2000),
+      vsync: this,
+    )..repeat(reverse: true);
   }
 
   @override
   void dispose() {
     _animCtrl.dispose();
+    _pulseCtrl.dispose();
     _textCtrl.dispose();
     _scrollCtrl.dispose();
     super.dispose();
@@ -203,6 +211,17 @@ class _ChatbotWidgetState extends State<ChatbotWidget>
                 style: TextStyle(fontSize: 10, color: Colors.white70)),
           ]),
         ),
+        IconButton(
+          icon: const Icon(Icons.mic_rounded, color: Colors.white, size: 22),
+          tooltip: 'Assistant vocal (hors ligne)',
+          onPressed: () {
+            Navigator.of(context).push<void>(
+              MaterialPageRoute<void>(builder: (_) => const VoiceChatScreen()),
+            );
+          },
+          padding: EdgeInsets.zero,
+          constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+        ),
         // Bouton effacer historique
         IconButton(
           icon: const Icon(Icons.refresh_rounded, color: Colors.white70, size: 20),
@@ -329,20 +348,43 @@ class _ChatbotWidgetState extends State<ChatbotWidget>
   Widget _buildButton() {
     return GestureDetector(
       onTap: _toggle,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        width: 58, height: 58,
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-              colors: [Color(0xFF34C759), Color(0xFF30D158)]),
-          borderRadius: BorderRadius.circular(18),
-          boxShadow: [BoxShadow(
-              color: const Color(0xFF34C759).withValues(alpha: 0.4),
-              blurRadius: 16, offset: const Offset(0, 8))],
-        ),
-        child: Icon(
-            _isOpen ? Icons.close_rounded : Icons.smart_toy_rounded,
-            color: Colors.white, size: 28),
+      child: AnimatedBuilder(
+        animation: _pulseCtrl,
+        builder: (context, child) {
+          final t = Curves.easeInOut.transform(_pulseCtrl.value);
+          return Transform.scale(
+            scale: 1.0 + 0.05 * t,
+            child: Container(
+              width: 56,
+              height: 56,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.transparent,
+                border: Border.all(
+                  color: Color.lerp(
+                    AppTheme.greenPrimary.withValues(alpha: 0.28),
+                    AppTheme.greenPrimary.withValues(alpha: 0.55),
+                    t,
+                  )!,
+                  width: 1.5 + 0.5 * t,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppTheme.greenPrimary.withValues(alpha: 0.06 + 0.14 * t),
+                    blurRadius: 8 + 16 * t,
+                    spreadRadius: 0,
+                  ),
+                ],
+              ),
+              child: Icon(
+                _isOpen ? Icons.close_rounded : Icons.smart_toy_rounded,
+                color: AppTheme.greenPrimary.withValues(alpha: 0.72 + 0.2 * t),
+                size: 27,
+              ),
+            ),
+          );
+        },
       ),
     );
   }

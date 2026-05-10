@@ -1,4 +1,4 @@
-import 'dart:ui';
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
@@ -31,12 +31,24 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final settings = AppSettings();
   await settings.load();
-  runApp(AgrismartApp(settings: settings));
+  List<CameraDescription> cameras = const [];
+  try {
+    cameras = await availableCameras();
+  } catch (e, st) {
+    debugPrint('availableCameras: $e\n$st');
+  }
+  runApp(AgrismartApp(settings: settings, cameras: cameras));
 }
 
 class AgrismartApp extends StatelessWidget {
   final AppSettings settings;
-  const AgrismartApp({super.key, required this.settings});
+  final List<CameraDescription> cameras;
+
+  const AgrismartApp({
+    super.key,
+    required this.settings,
+    required this.cameras,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +80,7 @@ class AgrismartApp extends StatelessWidget {
             '/': (context) => const AuthCheckScreen(),
             '/login': (context) => const LoginScreen(),
             '/register': (context) => const RegisterScreen(),
-            '/home': (context) => const MainShell(),
+            '/home': (context) => MainShell(cameras: cameras),
           },
         ),
       ),
@@ -166,52 +178,19 @@ Map<String, dynamic> _navConfigForRole(String role, AppSettings s) {
   }
 }
 
-String _roleBadgeLabel(String role, AppSettings s) {
-  switch (role) {
-    case 'admin': return s.tr('role_admin');
-    case 'vet': return s.tr('role_vet');
-    case 'agronomist': return s.tr('role_agronomist');
-    case 'breeder': return s.tr('role_breeder');
-    default: return s.tr('role_farmer');
-  }
-}
-
-Color _roleColor(String role) {
-  switch (role) {
-    case 'admin': return Colors.purple;
-    case 'vet': return Colors.blue;
-    case 'agronomist': return Colors.teal;
-    case 'breeder': return Colors.orange;
-    default: return AppTheme.greenPrimary;
-  }
-}
-
 // ─────────────────────────────────────────────────────────────
 // MainShell
 // ─────────────────────────────────────────────────────────────
 class MainShell extends StatefulWidget {
-  const MainShell({super.key});
+  final List<CameraDescription> cameras;
+
+  const MainShell({super.key, required this.cameras});
   @override
   State<MainShell> createState() => _MainShellState();
 }
 
-class _MainShellState extends State<MainShell>
-    with SingleTickerProviderStateMixin {
+class _MainShellState extends State<MainShell> {
   int _index = 0;
-  late AnimationController _fabController;
-
-  @override
-  void initState() {
-    super.initState();
-    _fabController = AnimationController(
-        duration: const Duration(milliseconds: 300), vsync: this);
-  }
-
-  @override
-  void dispose() {
-    _fabController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -236,8 +215,11 @@ class _MainShellState extends State<MainShell>
 
     if (_index >= pages.length) _index = 0;
 
+    final bottomFab = 16.0 + MediaQuery.of(context).padding.bottom;
+
     return Scaffold(
-      extendBody: true,
+      extendBody: false,
+      drawer: _buildDrawer(context, pages, titles, icons),
       appBar: AppBar(
         title: Row(
           children: [
@@ -262,37 +244,32 @@ class _MainShellState extends State<MainShell>
                   const Icon(Icons.eco_rounded, color: Colors.white, size: 24),
             ),
             const SizedBox(width: 12),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  titles[_index],
-                  style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: -0.5),
-                ),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: _roleColor(role).withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Text(
-                    _roleBadgeLabel(role, settings),
-                    style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w600,
-                        color: _roleColor(role)),
-                  ),
-                ),
-              ],
+            Expanded(
+              child: Text(
+                titles[_index],
+                style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: -0.5),
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ],
         ),
         actions: [
+          Container(
+            margin: const EdgeInsets.only(right: 8),
+            decoration: BoxDecoration(
+              color: AppTheme.glassSurface,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppTheme.glassBorder, width: 1),
+            ),
+            child: PlantCameraWidget(
+              appBarStyle: true,
+              userId: currentUser?.id ?? 1,
+              cameras: widget.cameras,
+            ),
+          ),
           Container(
             margin: const EdgeInsets.only(right: 16),
             decoration: BoxDecoration(
@@ -329,115 +306,133 @@ class _MainShellState extends State<MainShell>
             child: Container(key: ValueKey<int>(_index), child: pages[_index]),
           ),
 
-          // ✅ Assistant IA — bas DROITE
-          const Positioned(
-            right: 16,
-            bottom: 100,
-            child: ChatbotWidget(),
-          ),
-
-          // ✅ Caméra plante — bas GAUCHE (séparé de l'assistant)
+          // Assistant — bas droite
           Positioned(
-            left: 16,
-            bottom: 100,
-            child: PlantCameraWidget(userId: currentUser?.id ?? 1),
+            right: 16,
+            bottom: bottomFab,
+            child: const ChatbotWidget(),
           ),
         ],
-      ),
-      bottomNavigationBar:
-          _buildGlassNav(pages, titles, icons),
-    );
-  }
-
-  Widget _buildGlassNav(
-      List<Widget> pages, List<String> titles, List<IconData> icons) {
-    return Container(
-      margin: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-              color: Colors.black.withValues(alpha: 0.1),
-              blurRadius: 30,
-              offset: const Offset(0, 10)),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(24),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.8),
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.5), width: 1.5),
-            ),
-            child: SafeArea(
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: List.generate(
-                    pages.length,
-                    (i) => _buildNavItem(i, titles[i], icons[i]),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
       ),
     );
   }
 
-  Widget _buildNavItem(int i, String title, IconData icon) {
-    final isSelected = _index == i;
-    return GestureDetector(
-      onTap: () {
-        setState(() => _index = i);
-        _fabController.forward(from: 0);
-      },
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: EdgeInsets.symmetric(
-            horizontal: isSelected ? 16 : 12, vertical: 10),
-        decoration: BoxDecoration(
-          gradient: isSelected
-              ? const LinearGradient(
+  Widget _buildDrawer(
+    BuildContext context,
+    List<Widget> pages,
+    List<String> titles,
+    List<IconData> icons,
+  ) {
+    final user = context.watch<AuthService>().currentUser;
+
+    return Drawer(
+      child: SafeArea(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            DrawerHeader(
+              margin: EdgeInsets.zero,
+              padding: const EdgeInsets.fromLTRB(20, 16, 16, 12),
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
                   colors: [Color(0xFF34C759), Color(0xFF30D158)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                )
-              : null,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: isSelected
-              ? [
-                  BoxShadow(
-                      color: AppTheme.greenPrimary.withValues(alpha: 0.3),
-                      blurRadius: 12,
-                      offset: const Offset(0, 6))
-                ]
-              : null,
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon,
-                color: isSelected
-                    ? Colors.white
-                    : AppTheme.greenDark.withValues(alpha: 0.5),
-                size: 24),
-            if (isSelected) ...[
-              const SizedBox(width: 6),
-              Text(title,
-                  style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.25),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: const Icon(Icons.eco_rounded, color: Colors.white, size: 28),
+                  ),
+                  const Spacer(),
+                  const Text(
+                    'AgriSmart',
+                    style: TextStyle(
                       color: Colors.white,
-                      letterSpacing: -0.3)),
-            ],
+                      fontSize: 21,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -0.3,
+                    ),
+                  ),
+                  Text(
+                    user != null
+                        ? (user.name.isNotEmpty ? user.name : user.email)
+                        : 'AgriSmart',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.9),
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+              child: Text(
+                'Navigation',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: AppTheme.greenDark.withValues(alpha: 0.45),
+                  letterSpacing: 0.4,
+                ),
+              ),
+            ),
+            ...List.generate(pages.length, (i) {
+              final sel = _index == i;
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                child: ListTile(
+                  leading: Icon(
+                    icons[i],
+                    color: sel
+                        ? AppTheme.greenPrimary
+                        : AppTheme.greenDark.withValues(alpha: 0.45),
+                  ),
+                  title: Text(
+                    titles[i],
+                    style: TextStyle(
+                      fontWeight: sel ? FontWeight.w700 : FontWeight.w500,
+                      color: sel ? AppTheme.greenDark : null,
+                    ),
+                  ),
+                  selected: sel,
+                  selectedTileColor: AppTheme.greenPrimary.withValues(alpha: 0.1),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  onTap: () {
+                    setState(() => _index = i);
+                    Navigator.pop(context);
+                  },
+                ),
+              );
+            }),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: Divider(height: 32),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: ListTile(
+                leading: Icon(Icons.logout_rounded, color: AppTheme.greenDark.withValues(alpha: 0.75)),
+                title: const Text('Déconnexion'),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                onTap: () async {
+                  Navigator.pop(context);
+                  await Provider.of<AuthService>(context, listen: false).logout();
+                  if (!context.mounted) return;
+                  Navigator.of(context).pushNamedAndRemoveUntil('/login', (r) => false);
+                },
+              ),
+            ),
           ],
         ),
       ),
